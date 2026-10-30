@@ -211,6 +211,8 @@ function mostrarNotificaciones(){
   });
   el('vista').innerHTML = html;
   SESION.noLeidas = 0;
+  var bd = document.querySelector('#btn-campana .badge');
+  if(bd) bd.parentNode.removeChild(bd);
 }
 
 /* ---------- Selector de hijo ---------- */

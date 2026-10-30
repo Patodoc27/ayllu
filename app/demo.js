@@ -176,6 +176,46 @@ var DEMO = {
     { nombre: 'Fernández, Sol', rol: 'docente', detalle: 'Matemática · 1°A 1°B' }
   ],
 
+  /* Horario semanal del curso */
+  horarios: [
+    { dia: 'Lunes',     bloques: [['08:00','Matemática','12'],['08:45','Lengua','12'],['10:15','Biología','Lab 1'],['11:10','Historia','12']] },
+    { dia: 'Martes',    bloques: [['08:00','Historia','12'],['08:45','Matemática','12'],['10:15','Ed. Física','SUM'],['11:10','Inglés','12']] },
+    { dia: 'Miércoles', bloques: [['08:00','Biología','Lab 1'],['08:45','Inglés','12'],['10:15','Lengua','12']] },
+    { dia: 'Jueves',    bloques: [['08:00','Matemática','12'],['08:45','Historia','12'],['10:15','Inglés','12'],['11:10','Lengua','12']] },
+    { dia: 'Viernes',   bloques: [['08:00','Lengua','12'],['08:45','Biología','Lab 1'],['10:15','Ed. Física','SUM']] }
+  ],
+
+  /* Ficha médica: la declara la familia, la consulta la escuela */
+  ficha: {
+    grupo: '0 positivo', alergias: 'Ninguna declarada',
+    cobertura: 'OSDE 210 · Credencial 44-556677-8',
+    contacto: 'Laura González (mamá) — 387 555-1234',
+    observaciones: 'Asma leve: lleva el inhalador en la mochila.'
+  },
+
+  /* Quiénes pueden retirar al alumno */
+  autorizados: [
+    { nombre: 'Laura González', vinculo: 'Mamá' },
+    { nombre: 'Pedro Ruiz', vinculo: 'Papá' },
+    { nombre: 'Marta Díaz', vinculo: 'Abuela' }
+  ],
+  retiroHoy: { quien: 'Laura González (mamá)', hora: '13:10', aviso: false },
+
+  /* Preferencias de notificación por tipo de evento */
+  notifPrefs: [
+    { id: 'faltas',        label: 'Faltas y llegadas tarde',   detalle: 'aviso inmediato',           on: true },
+    { id: 'notas',         label: 'Notas nuevas',              detalle: 'cuando el docente carga',   on: true },
+    { id: 'avisos',        label: 'Llamados de atención',      detalle: 'requieren tu firma',        on: true },
+    { id: 'comunicados',   label: 'Comunicados y eventos',     detalle: 'del colegio',               on: true },
+    { id: 'recordatorios', label: 'Recordatorio de entregas',  detalle: 'el día anterior',           on: false }
+  ],
+
+  datosAlumno: {
+    nombre: 'Martina González', curso: '3° A · turno mañana', dni: '45.678.901',
+    docente: 'Prof. López (Biología)', preceptor: 'Preceptor Ruiz',
+    contacto: 'familia.gonzalez@mail.com'
+  },
+
   notificaciones: [
     { tipo: 'asistencia', texto: 'Martina González registró una falta hoy (3° A).', fecha: 'Hoy 08:12', leida: false },
     { tipo: 'nota', texto: 'Nueva nota en Biología: Informe laboratorio — pendiente de entrega.', fecha: 'Ayer', leida: false },

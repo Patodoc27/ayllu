@@ -7,6 +7,10 @@ var V = function(){ return window.AYLLU; };
 var esc = function(s){ return V().esc(s); };
 var icono = function(n){ return V().icono(n); };
 var D = function(){ return V().DEMO; };
+var el = function(id){ return document.getElementById(id); };
+var esPadre = function(){ return V().SESION.usuario.rol==='padre'; };
+var selHijo = function(){ return esPadre() ? V().selectorHijo() : ''; };
+var engancharSel = function(){ if(esPadre()) V().engancharSelectorHijo(); };
 
 /* Cada rol ve solo los comunicados dirigidos a su grupo (o a todos) */
 var AUDIENCIAS_ROL = {
@@ -35,11 +39,11 @@ function tarjetaComunicado(c){
     '<div class="fecha">' + esc(c.fecha) + '</div>';
   if(c.requiereRespuesta){
     if(c.respondido){
-      html += '<div class="alertita info" style="margin-bottom:0">Respondido — gracias.</div>';
+      html += '<div class="alertita info" style="margin-bottom:0">Respondido (' + esc(c.respondido) + ') — gracias.</div>';
     } else {
       html += '<div class="acciones">';
       (c.opciones||['Sí','No']).forEach(function(o){
-        html += '<button class="btn ' + (o.toLowerCase().indexOf('no')===0||o.toLowerCase().indexOf('no ')>-1 ? 'gris' : 'naranja') + ' chico">' + esc(o) + '</button>';
+        html += '<button class="btn ' + (o.toLowerCase().indexOf('no')===0 ? 'gris' : 'naranja') + ' chico" onclick="responderCom(\'' + c.id + '\',\'' + esc(o) + '\')">' + esc(o) + '</button>';
       });
       html += '</div>';
     }
@@ -48,17 +52,32 @@ function tarjetaComunicado(c){
   return html;
 }
 
+window.responderCom = function(id, opcion){
+  D().comunicados.forEach(function(c){ if(c.id===id) c.respondido = opcion; });
+  V().pintar();
+};
+
 /* ============================== PADRE / ESTUDIANTE ============================== */
 
 VISTAS['padre.inicio'] = function(m){
-  var pend = D().comunicados.filter(function(c){ return c.requiereRespuesta && !c.respondido; }).length;
+  var rol = V().SESION.usuario.rol;
+  var mios = comunicadosPara(rol==='docente'?'docente':rol==='estudiante'?'estudiante':'padre');
+  var pend = mios.filter(function(c){ return c.requiereRespuesta && !c.respondido; });
+  var primero = true;
   m.innerHTML =
-    V().selectorHijo() +
-    (pend ? '<button class="pendientes" style="width:100%;text-align:left">' +
-      '<span class="num">' + pend + '</span><span class="texto">Pendientes por responder</span>' + icono('flecha') + '</button>' : '') +
-    '<div class="titulo-seccion"><h2>Comunicados</h2><a href="#/mas">Ver todos</a></div>' +
-    comunicadosPara('padre').map(tarjetaComunicado).join('') +
-    '<div class="titulo-seccion"><h2>Próximos eventos</h2><a href="#/agenda">Agenda</a></div>' +
+    selHijo() +
+    (pend.length ? '<button class="pendientes" style="width:100%;text-align:left" id="btn-pend">' +
+      '<span class="num">' + pend.length + '</span><span class="texto">Pendientes por responder</span>' + icono('flecha') + '</button>' : '') +
+    '<div class="titulo-seccion"><h2>Comunicados</h2></div>' +
+    mios.map(function(c){
+      var t = tarjetaComunicado(c);
+      if(c.requiereRespuesta && !c.respondido && primero){
+        t = t.replace('<div class="tarjeta">','<div class="tarjeta" id="primer-pend">');
+        primero = false;
+      }
+      return t;
+    }).join('') +
+    '<div class="titulo-seccion"><h2>Próximos eventos</h2>' + (rol!=='docente' ? '<a href="#/agenda">Agenda</a>' : '') + '</div>' +
     D().eventos.map(function(e){
       return '<div class="tarjeta" style="display:flex;gap:14px;align-items:center">' +
         '<div style="width:46px;height:46px;border-radius:12px;background:var(--magenta-suave);color:var(--magenta);display:flex;align-items:center;justify-content:center">' + icono(e.fotos?'foto':'agenda') + '</div>' +
@@ -66,7 +85,9 @@ VISTAS['padre.inicio'] = function(m){
         '<div class="fecha">' + esc(e.fecha) + (e.hora?' · '+e.hora:'') + (e.fotos?' · '+e.fotos+' fotos':'') + '</div></div>' +
         icono('flecha') + '</div>';
     }).join('');
-  V().engancharSelectorHijo();
+  engancharSel();
+  var bp = el('btn-pend');
+  if(bp) bp.onclick = function(){ var t = el('primer-pend'); if(t) t.scrollIntoView({behavior:'smooth',block:'center'}); };
 };
 
 function filaNota(it){
@@ -110,6 +131,8 @@ function boletinCarpetas(t){
 
 window.boletinSel = function(t){
   document.querySelectorAll('.chip-tri').forEach(function(c){ c.classList.toggle('activo', c.getAttribute('data-t')==String(t)); });
+  var pista = document.getElementById('boletin-pista');
+  if(pista) pista.style.display = 'none';
   var el = document.getElementById('carpetas');
   el.innerHTML = boletinCarpetas(t);
   el.style.display = 'block';
@@ -120,14 +143,14 @@ window.boletinSel = function(t){
 
 VISTAS['padre.boletin'] = function(m){
   var h = V().hijo();
-  m.innerHTML = V().selectorHijo() +
+  m.innerHTML = selHijo() +
     '<div class="titulo-seccion"><h2>Boletín · ' + esc(h.curso) + '</h2></div>' +
     '<div class="selector-tri">' +
       [1,2,3].map(function(t){ return '<button class="chip chip-tri" data-t="' + t + '" onclick="boletinSel(' + t + ')">' + t + '° trimestre</button>'; }).join('') +
     '</div>' +
     '<p class="nota" id="boletin-pista">Elegí el trimestre y tocá una materia para ver sus notas.</p>' +
     '<div id="carpetas" style="display:none"></div>';
-  V().engancharSelectorHijo();
+  engancharSel();
 };
 
 VISTAS['padre.asistencia'] = function(m){
@@ -139,18 +162,23 @@ VISTAS['padre.asistencia'] = function(m){
   D().asistenciaMes.forEach(function(d){
     celdas += '<div class="dia ' + d.e + '">' + d.dia + '</div>';
   });
-  m.innerHTML = V().selectorHijo() +
+  m.innerHTML = selHijo() +
     (faltas ? '<div class="alertita aviso">' + icono('alerta') + '<div><b>' + faltas + ' falta' + (faltas>1?'s':'') + '</b> este mes y ' + tardes + ' llegada' + (tardes>1?'s':'') + ' tarde. La escuela ya fue notificada a tu celular.</div></div>' : '') +
     '<div class="tarjeta"><div class="titulo-seccion" style="margin-top:0"><h2>Octubre · ' + esc(h.nombre.split(' ')[0]) + '</h2></div>' +
     '<div class="cal">' + celdas +
-      '<div class="leyenda"><span><i style="background:#1E9E5A"></i>presente</span><span><i style="background:var(--naranja)"></i>ausente</span><span><i style="background:var(--magenta)"></i>tarde</span></div>' +
+      '<div class="leyenda"><span><i style="background:#1E9E5A"></i>presente</span><span><i style="background:var(--naranja)"></i>ausente</span><span><i style="background:var(--magenta)"></i>tarde</span><span><i style="background:var(--gris-2)"></i>justificada</span></div>' +
     '</div></div>' +
-    '<button class="btn contorno ancho">Justificar una falta</button>';
-  V().engancharSelectorHijo();
+    (esPadre() ? '<a class="btn contorno ancho" href="#/justificar" style="display:block;text-align:center">Justificar una falta</a>' : '');
+  engancharSel();
+};
+
+window.firmarAviso = function(id){
+  D().incidentes.forEach(function(i){ if(i.id===id) i.firmado = true; });
+  V().pintar();
 };
 
 VISTAS['padre.avisos'] = function(m){
-  m.innerHTML = V().selectorHijo() +
+  m.innerHTML = selHijo() +
     '<div class="titulo-seccion"><h2>Llamados de atención</h2></div>' +
     D().incidentes.map(function(i){
       return '<div class="tarjeta">' +
@@ -158,56 +186,116 @@ VISTAS['padre.avisos'] = function(m){
         '<p>' + esc(i.texto) + '</p><div class="fecha">' + esc(i.fecha) + '</div>' +
         '<div class="acciones">' +
           (i.firmado
-            ? '<span class="etiqueta magenta">Firmado ✓</span>'
-            : '<button class="btn magenta chico">Firmar que tomé conocimiento</button>') +
+            ? '<span class="etiqueta magenta">Firmado — la escuela ya lo sabe</span>'
+            : (esPadre() ? '<button class="btn magenta chico" onclick="firmarAviso(\'' + i.id + '\')">Firmar que tomé conocimiento</button>'
+                         : '<span class="etiqueta naranja">Pendiente de firma por tu familia</span>')) +
         '</div></div>';
     }).join('') +
     '<div class="alertita info">Cuando la escuela registre un llamado de atención te llega una notificación al celular.</div>';
-  V().engancharSelectorHijo();
+  engancharSel();
+};
+
+window.filtrarSector = function(s, chipEl){
+  D().sectorFiltro = s;
+  chipEl.parentNode.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('activo'); });
+  chipEl.classList.add('activo');
+  V().pintar();
 };
 
 VISTAS['padre.mensajes'] = function(m){
-  m.innerHTML = V().selectorHijo() +
+  var filtro = D().sectorFiltro || 'Todos';
+  var convs = D().conversaciones.filter(function(c){ return filtro==='Todos' || c.sector===filtro; });
+  m.innerHTML = selHijo() +
     '<div class="titulo-seccion"><h2>Mensajes a la escuela</h2>' +
-    '<a href="#/mensajes" class="btn magenta chico">Nuevo</a></div>' +
+    '<a href="#/nuevoMensaje" class="btn magenta chico">Nuevo</a></div>' +
     '<div style="margin:8px 0">' +
-      ['Secretaría','Pedagógico','Preceptor','Docente'].map(function(s){ return '<span class="chip">' + esc(s) + '</span>'; }).join('') +
+      ['Todos','Secretaría','Pedagógico','Preceptor','Docente'].map(function(s){
+        return '<span class="chip' + (s===filtro?' activo':'') + '" onclick="filtrarSector(\'' + s + '\',this)">' + esc(s) + '</span>';
+      }).join('') +
     '</div>' +
-    D().conversaciones.map(function(c){
+    (convs.length ? convs.map(function(c){
       return '<div class="tarjeta"><div style="display:flex;justify-content:space-between;align-items:center">' +
         '<span class="etiqueta magenta">' + esc(c.sector) + '</span>' +
         '<span class="etiqueta ' + (c.estado==='resuelto'?'gris':'naranja') + '">' + esc(c.estado) + '</span></div>' +
         '<h3 style="margin-top:8px">' + esc(c.asunto) + '</h3>' +
         '<p>' + esc(c.ultimo) + '</p><div class="fecha">' + esc(c.fecha) + '</div></div>';
-    }).join('');
-  V().engancharSelectorHijo();
+    }).join('') : '<div class="vacio">No hay conversaciones con este sector.</div>');
+  engancharSel();
 };
 
-VISTAS['padre.mas'] = function(m){
+VISTAS['padre.nuevoMensaje'] = function(m){
+  m.innerHTML =
+    '<div class="titulo-seccion"><h2>Nuevo mensaje</h2><a href="#/mensajes" style="font-size:.8rem">Volver</a></div>' +
+    '<div class="tarjeta">' +
+      '<div class="campo"><label>¿A qué sector va dirigido?</label>' +
+        '<select id="nm-sector">' + ['Secretaría','Pedagógico','Preceptor','Docente'].map(function(s){ return '<option>' + s + '</option>'; }).join('') + '</select></div>' +
+      '<div class="campo"><label>Asunto</label><input id="nm-asunto" placeholder="Ej. Constancia de alumno regular"></div>' +
+      '<div class="campo"><label>Mensaje</label><textarea id="nm-texto" rows="4" placeholder="Escribí tu consulta..."></textarea></div>' +
+      '<button class="btn naranja ancho" id="nm-enviar">Enviar mensaje</button>' +
+      '<p class="nota">El sector recibe el mensaje al instante y te responde por este mismo hilo.</p>' +
+    '</div>';
+  el('nm-enviar').onclick = function(){
+    var asunto = el('nm-asunto').value.trim();
+    var texto = el('nm-texto').value.trim();
+    if(!asunto){ el('nm-asunto').focus(); return; }
+    if(!texto){ el('nm-texto').focus(); return; }
+    D().conversaciones.unshift({ id:'m'+Date.now(), sector:el('nm-sector').value, asunto:asunto, ultimo:texto, fecha:'Hoy', estado:'en curso' });
+    D().sectorFiltro = 'Todos';
+    location.hash = '#/mensajes';
+  };
+};
+
+function linkIcon(href, ic, t, color){
+  return '<a class="appicon" href="' + href + '"><span class="ic" style="background:' + color + '">' + icono(ic) + '</span>' + esc(t) + '</a>';
+}
+
+/* "Más" de la familia: cada acceso lleva a una pantalla real */
+function masFamilia(m){
   m.innerHTML =
     '<div class="titulo-seccion"><h2>Más</h2></div>' +
     '<div class="grilla-apps">' +
-      appIcon('agenda','Agenda','var(--magenta)') +
-      appIcon('foto','Galería','var(--naranja)') +
-      appIcon('salud','Ficha médica','var(--negro)') +
-      appIcon('reloj','Horarios','var(--magenta)') +
-      appIcon('salida','Hora de salida','var(--naranja)') +
-      appIcon('campana','Notificaciones','var(--negro)') +
+      linkIcon('#/agenda','agenda','Agenda','var(--magenta)') +
+      linkIcon('#/horarios','reloj','Horarios','var(--negro)') +
+      linkIcon('#/ficha','salud','Ficha médica','var(--naranja)') +
+      linkIcon('#/salida','salida','Hora de salida','var(--magenta)') +
+      linkIcon('#/notifPrefs','campana','Notificaciones','var(--negro)') +
+      linkIcon('#/datosAlumno','usuarios','Datos del alumno','var(--naranja)') +
     '</div>' +
-    '<div class="tarjeta"><div class="fila"><div class="texto"><div class="titulo">Preferencias de notificaciones</div><div class="sub">Elegí qué avisos recibir al celular</div></div>' + icono('flecha') + '</div>' +
-    '<div class="fila"><div class="texto"><div class="titulo">Datos del alumno</div><div class="sub">Contacto, salud, autorizados</div></div>' + icono('flecha') + '</div></div>' +
     '<button class="btn gris ancho" id="btn-salir">Cerrar sesión</button>';
-  V().el('btn-salir').onclick = V().cerrarSesion;
-};
-
-function appIcon(ic, t, color){
-  return '<button class="appicon"><span class="ic" style="background:' + color + '">' + icono(ic) + '</span>' + esc(t) + '</button>';
+  el('btn-salir').onclick = V().cerrarSesion;
 }
+VISTAS['padre.mas'] = masFamilia;
+VISTAS['estudiante.mas'] = masFamilia;
 
-/* el estudiante reutiliza las vistas del padre (sin opciones de firma en el futuro) */
-['inicio','boletin','asistencia','avisos','mas'].forEach(function(v){
+/* "Más" del personal: lo que le sirve a quien trabaja en el colegio */
+function masStaff(m){
+  var u = V().SESION.usuario;
+  var rol = u.rol;
+  m.innerHTML =
+    '<div class="titulo-seccion"><h2>Más</h2></div>' +
+    '<div class="tarjeta" style="display:flex;gap:14px;align-items:center">' +
+      '<div class="avatar" style="width:46px;height:46px;border-radius:14px;background:var(--magenta);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem">' + esc(u.nombre.charAt(0)) + '</div>' +
+      '<div><div style="font-weight:700">' + esc(u.nombre) + '</div><div class="fecha">' + esc(rol) + ' · Colegio Modelo</div></div></div>' +
+    '<div class="grupo">' +
+      linkIcon('#/notifPrefs','campana','Notificaciones','var(--magenta)') +
+      linkIcon('#/comunicados','comunicado','Comunicados','var(--negro)') +
+      (rol==='director'||rol==='admin' ? linkIcon('#/estadisticas','chart','Estadísticas','var(--naranja)') : '') +
+    '</div>' +
+    '<div class="alertita info">AYLLU conecta escuela y familia: cada rol ve solo lo que necesita para su jornada.</div>' +
+    '<button class="btn gris ancho" id="btn-salir">Cerrar sesión</button>';
+  el('btn-salir').onclick = V().cerrarSesion;
+}
+VISTAS['docente.mas'] = masStaff;
+VISTAS['preceptor.mas'] = masStaff;
+VISTAS['director.mas'] = masStaff;
+VISTAS['admin.mas'] = masStaff;
+
+/* el estudiante reutiliza las vistas del padre; el selector de hijo y
+   las acciones de firma solo aparecen para el rol padre */
+['inicio','boletin','asistencia','avisos'].forEach(function(v){
   VISTAS['estudiante.' + v] = VISTAS['padre.' + v];
 });
+VISTAS['padre.agenda'] = null; /* se asigna abajo, junto a la vista del estudiante */
 VISTAS['estudiante.agenda'] = function(m){
   var diasEntrega = {};
   D().entregas.forEach(function(e){ diasEntrega[e.dia] = e; });
@@ -354,8 +442,17 @@ VISTAS['docente.cargar'] = function(m){
     var fecha = el('ca-fecha').value;
     if(!tema){ el('ca-tema').focus(); return; }
     if(!fecha){ el('ca-fecha').focus(); return; }
-    alert('Demo: actividad publicada. Familias notificadas y fecha marcada en la agenda del curso.');
-    location.hash = '#/misCursos';
+    var tipo = m.querySelector('.chip-tipo.activo').getAttribute('data-t');
+    var num = el('ca-num').value.trim();
+    var titulo = (tipo.indexOf('Trabajo')===0 ? 'TP ' + (num||'') : tipo) + ' · ' + tema;
+    var dm = fecha.split('-');
+    /* la columna aparece en la planilla y la fecha en la agenda del curso */
+    D().planilla.columnas.push({ id:'n'+Date.now(), titulo:titulo, tipo:tipo, entrega:dm[2]+'/'+dm[1] });
+    D().listaCurso.forEach(function(a){ D().planilla.notas[a.id][D().planilla.columnas[D().planilla.columnas.length-1].id] = null; });
+    D().entregas.push({ dia:Number(dm[2]), titulo:titulo, materia:el('ca-curso').value.split(' · ')[0], tipo:tipo });
+    D().docenteResumen.actividades++;
+    alert('Actividad publicada: las familias fueron notificadas y la fecha quedó marcada en la agenda de los alumnos.');
+    location.hash = '#/planilla';
   };
 };
 
@@ -375,7 +472,7 @@ function filaMaterial(x, editable){
     '<div class="texto"><div class="titulo">' + esc(x.titulo) + '</div>' +
     '<div class="sub">' + esc(x.materia) + ' · ' + esc(x.tipo) + ' · ' + esc(x.peso) + ' · ' + esc(x.fecha) + '</div></div>' +
     (editable
-      ? '<a class="btn gris chico">Quitar</a>'
+      ? '<a class="btn gris chico" onclick="quitarMaterial(\'' + x.id + '\')">Quitar</a>'
       : '<a class="btn magenta chico" onclick="alert(\'Demo: acá descarga el archivo.\')">Descargar</a>') +
     '</div>';
 }
@@ -388,41 +485,118 @@ VISTAS['estudiante.materiales'] = function(m){
 
 VISTAS['padre.materiales'] = VISTAS['estudiante.materiales'];
 
+window.quitarMaterial = function(id){
+  D().materiales = D().materiales.filter(function(x){ return x.id!==id; });
+  V().pintar();
+};
+
 VISTAS['docente.materiales'] = function(m){
-  m.innerHTML = '<div class="titulo-seccion"><h2>Materiales del curso</h2><a class="btn magenta chico">Subir archivo</a></div>' +
+  m.innerHTML = '<div class="titulo-seccion"><h2>Materiales del curso</h2><a class="btn magenta chico" href="#/subir">Subir archivo</a></div>' +
     '<div class="alertita info">Subís una vez y queda disponible para todo el curso: los estudiantes lo descargan desde cualquier dispositivo.</div>' +
-    '<div class="tarjeta">' + D().materiales.map(function(x){ return filaMaterial(x,true); }).join('') + '</div>';
+    '<div class="tarjeta">' + (D().materiales.length ? D().materiales.map(function(x){ return filaMaterial(x,true); }).join('') : '<div class="vacio">Todavía no subiste materiales.</div>') + '</div>';
+};
+
+VISTAS['docente.subir'] = function(m){
+  m.innerHTML =
+    '<div class="titulo-seccion"><h2>Subir material</h2><a href="#/materiales" style="font-size:.8rem">Volver</a></div>' +
+    '<div class="tarjeta">' +
+      '<div class="campo"><label>Materia y curso</label>' +
+        '<select id="sm-materia">' + D().cursosDocente.map(function(c){ return '<option>' + esc(c.materia) + ' · ' + esc(c.curso) + '</option>'; }).join('') + '</select></div>' +
+      '<div class="campo"><label>Título del material</label><input id="sm-titulo" placeholder="Ej. Guía de tejidos — unidad 3"></div>' +
+      '<div class="campo"><label>Archivo</label><input type="file" id="sm-file"></div>' +
+      '<button class="btn naranja ancho" id="sm-subir">Publicar material</button>' +
+      '<p class="nota">Los estudiantes del curso reciben notificación y lo descargan del celu o la compu.</p>' +
+    '</div>';
+  el('sm-subir').onclick = function(){
+    var t = el('sm-titulo').value.trim();
+    if(!t){ el('sm-titulo').focus(); return; }
+    var f = el('sm-file').files[0];
+    D().materiales.unshift({ id:'ma'+Date.now(), materia:el('sm-materia').value.split(' · ')[0], titulo:t,
+      tipo: f ? (f.name.split('.').pop()||'').toUpperCase() : 'PDF',
+      peso: f ? Math.max(1,Math.round(f.size/1024)) + ' KB' : '—',
+      fecha: 'Hoy' });
+    D().docenteResumen.materiales++;
+    location.hash = '#/materiales';
+  };
 };
 
 VISTAS['docente.vida'] = VISTAS['estudiante.agenda'];
-VISTAS['docente.mas'] = VISTAS['padre.mas'];
 
 /* ============================== PRECEPTOR ============================== */
 
+/* Tocar un estado cicla P → T → A → J → P (editable solo para el preceptor) */
+window.ciclarEstado = function(id){
+  var orden = ['P','T','A','J'];
+  D().listaCurso.forEach(function(a){
+    if(a.id===id) a.estado = orden[(orden.indexOf(a.estado)+1)%orden.length];
+  });
+  V().pintar();
+};
+
+window.elegirCurso = function(c){
+  D().cursoTomando = c;
+  V().pintar();
+};
+
 function listaAsistencia(editable){
+  var curso = D().cursoTomando || '3° A';
+  var nov = D().listaCurso.filter(function(a){return a.estado!=='P';}).length;
   var html = '<div class="tarjeta"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
-    '<h3>3° A · Hoy</h3><span class="etiqueta naranja">' + D().listaCurso.filter(function(a){return a.estado!=='P';}).length + ' novedades</span></div>';
+    '<h3>' + esc(curso) + ' · Hoy</h3><span class="etiqueta ' + (nov?'naranja':'magenta') + '">' + (nov ? nov + ' novedades' : 'todos presentes') + '</span></div>';
+  if(editable) html += '<p class="nota" style="margin-top:0">Tocá la letra para cambiar: P presente · T tarde · A ausente · J justificado.</p>';
   D().listaCurso.forEach(function(a){
     html += '<div class="fila"><div class="texto"><div class="titulo">' + esc(a.nombre) + '</div></div>' +
-      '<div class="estado ' + a.estado + '" data-id="' + a.id + '">' + a.estado + '</div></div>';
+      '<div class="estado ' + a.estado + '" ' + (editable ? 'onclick="ciclarEstado(\'' + a.id + '\')" style="cursor:pointer"' : '') + '>' + a.estado + '</div></div>';
   });
   html += '</div>';
   if(editable){
     html += '<div style="display:flex;gap:8px;margin-bottom:10px">' +
-      '<button class="btn naranja" style="flex:1">Guardar asistencia</button>' +
-      '<button class="btn gris">Copiar ayer</button></div>' +
+      '<button class="btn naranja" style="flex:1" id="asis-guardar">Guardar asistencia</button>' +
+      '<button class="btn gris" id="asis-ayer">Todos presentes</button></div>' +
       '<p class="nota">Al guardar, los padres de ausentes y tardes reciben notificación al instante.</p>';
   }
   return html;
 }
 
 VISTAS['preceptor.asistencia'] = function(m){
+  var curso = D().cursoTomando || '3° A';
   m.innerHTML =
     '<div class="titulo-seccion"><h2>Tomar asistencia</h2></div>' +
-    '<div style="margin:4px 0 10px">' + ['1° A','1° B','3° A'].map(function(c,i){ return '<span class="chip' + (i===2?' activo':'') + '">' + c + '</span>'; }).join('') + '</div>' +
+    '<div style="margin:4px 0 10px">' + D().cursosPreceptor.map(function(c){
+      return '<span class="chip' + (c.curso===curso?' activo':'') + '" onclick="elegirCurso(\'' + c.curso + '\')">' + esc(c.curso) + (c.tomada ? '' : ' ·') + '</span>';
+    }).join('') + '</div>' +
     listaAsistencia(true) +
     '<div class="titulo-seccion"><h2>Llegadas tarde</h2></div>' +
-    '<button class="btn contorno ancho">Registrar llegada tarde con hora</button>';
+    '<a class="btn contorno ancho" href="#/tarde" style="display:block;text-align:center">Registrar llegada tarde con hora</a>';
+  el('asis-guardar').onclick = function(){
+    var aus = D().listaCurso.filter(function(a){return a.estado==='A';}).length;
+    var tar = D().listaCurso.filter(function(a){return a.estado==='T';}).length;
+    D().cursosPreceptor.forEach(function(c){ if(c.curso===curso){ c.tomada = true; c.ausentes = aus; c.tardes = tar; } });
+    alert('Asistencia de ' + curso + ' guardada. ' + (aus+tar) + ' familias notificadas al instante.');
+    location.hash = '#/resumen';
+  };
+  el('asis-ayer').onclick = function(){
+    D().listaCurso.forEach(function(a){ a.estado='P'; });
+    V().pintar();
+  };
+};
+
+VISTAS['preceptor.tarde'] = function(m){
+  m.innerHTML =
+    '<div class="titulo-seccion"><h2>Llegada tarde</h2><a href="#/asistencia" style="font-size:.8rem">Volver</a></div>' +
+    '<div class="tarjeta">' +
+      '<div class="campo"><label>Alumno</label><select id="lt-alumno">' +
+        D().listaCurso.map(function(a){ return '<option value="' + a.id + '">' + esc(a.nombre) + '</option>'; }).join('') + '</select></div>' +
+      '<div class="campo"><label>Hora de ingreso</label><input id="lt-hora" type="time" value="08:25"></div>' +
+      '<button class="btn naranja ancho" id="lt-guardar">Registrar</button>' +
+      '<p class="nota">La familia recibe la notificación con la hora exacta de ingreso.</p>' +
+    '</div>';
+  el('lt-guardar').onclick = function(){
+    var a = D().listaCurso.filter(function(x){ return x.id===el('lt-alumno').value; })[0];
+    a.estado = 'T';
+    alert('Registrada: ' + a.nombre + ' ingresó ' + el('lt-hora').value + '. Familia notificada.');
+    location.hash = '#/asistencia';
+  };
 };
 
 VISTAS['preceptor.alertas'] = function(m){
@@ -441,7 +615,6 @@ VISTAS['preceptor.alertas'] = function(m){
 /* Panel del preceptor: su jornada de un vistazo — qué ya hizo y qué le falta */
 VISTAS['preceptor.resumen'] = function(m){
   var pendientes = D().cursosPreceptor.filter(function(c){ return !c.tomada; });
-  var docPend = D().docentesHoy.filter(function(d){ return !d.marcado && false; }); // demo: ya marcados
   m.innerHTML =
     '<div class="titulo-seccion"><h2>Mi jornada</h2></div>' +
     (pendientes.length
@@ -460,14 +633,36 @@ VISTAS['preceptor.resumen'] = function(m){
     '<div class="titulo-seccion"><h2>Acciones rápidas</h2></div>' +
     '<div class="grilla-apps">' +
       '<a class="appicon" href="#/docentes"><span class="ic" style="background:var(--magenta)">' + icono('usuarios') + '</span>Asistencia docente</a>' +
-      '<a class="appicon" href="#/seguimiento"><span class="ic" style="background:var(--naranja)">' + icono('lapiz') + '</span>Registrar llamado</a>' +
-      '<a class="appicon" href="#/asistencia"><span class="ic" style="background:var(--negro)">' + icono('reloj') + '</span>Llegada tarde</a>' +
+      '<a class="appicon" href="#/llamado"><span class="ic" style="background:var(--naranja)">' + icono('lapiz') + '</span>Registrar llamado</a>' +
+      '<a class="appicon" href="#/tarde"><span class="ic" style="background:var(--negro)">' + icono('reloj') + '</span>Llegada tarde</a>' +
     '</div>';
 };
 
 /* Seguimiento: alertas de alumnos + registro de llamados, en una sola vista */
+VISTAS['preceptor.llamado'] = function(m){
+  m.innerHTML =
+    '<div class="titulo-seccion"><h2>Registrar llamado</h2><a href="#/seguimiento" style="font-size:.8rem">Volver</a></div>' +
+    '<div class="tarjeta">' +
+      '<div class="campo"><label>Alumno</label><select id="ll-alumno">' +
+        D().listaCurso.map(function(a){ return '<option>' + esc(a.nombre) + '</option>'; }).join('') + '</select></div>' +
+      '<div class="campo"><label>Tipo</label><select id="ll-tipo">' +
+        ['conducta','uniforme','convivencia','tarea','otro'].map(function(t){ return '<option>' + t + '</option>'; }).join('') + '</select></div>' +
+      '<div class="campo"><label>Gravedad</label><select id="ll-grav"><option>leve</option><option>grave</option></select></div>' +
+      '<div class="campo"><label>Descripción</label><textarea id="ll-texto" rows="3" placeholder="Qué pasó, en una oración clara..."></textarea></div>' +
+      '<button class="btn naranja ancho" id="ll-guardar">Registrar y avisar a la familia</button>' +
+      '<p class="nota">La familia recibe notificación y debe firmar que tomó conocimiento.</p>' +
+    '</div>';
+  el('ll-guardar').onclick = function(){
+    var t = el('ll-texto').value.trim();
+    if(!t){ el('ll-texto').focus(); return; }
+    D().incidentes.unshift({ id:'i'+Date.now(), tipo:el('ll-tipo').value, gravedad:el('ll-grav').value,
+      texto: el('ll-alumno').value + ': ' + t, fecha:'Hoy', firmado:false });
+    location.hash = '#/seguimiento';
+  };
+};
+
 VISTAS['preceptor.seguimiento'] = function(m){
-  m.innerHTML = '<div class="titulo-seccion"><h2>Seguimiento</h2><a class="btn magenta chico" onclick="alert(\'Demo: formulario de llamado de atención — tipo, gravedad, texto, aviso a la familia.\')">Registrar llamado</a></div>' +
+  m.innerHTML = '<div class="titulo-seccion"><h2>Seguimiento</h2><a class="btn magenta chico" href="#/llamado">Registrar llamado</a></div>' +
     '<div class="alertita info">Señales que piden acción: faltas repetidas, tardes, pendientes. Registrás el llamado y la familia recibe notificación.</div>' +
     D().alertasPreceptor.map(function(a){
       var ic = a.tipo==='faltas'?'asistencia':a.tipo==='tarde'?'reloj':'boletin';
@@ -547,7 +742,6 @@ function formComunicado(m, rol){
 });
 
 VISTAS['preceptor.comunicados'] = VISTAS['docente.comunicados'];
-VISTAS['preceptor.mas'] = VISTAS['padre.mas'];
 
 /* ============================== DIRECTOR ==============================
    Ve toda la escuela de un vistazo: asistencia del día, alumnos en riesgo,
@@ -581,7 +775,8 @@ VISTAS['director.resumen'] = function(m){
       '<div class="fila"><div class="avatar" style="background:var(--naranja-suave);color:var(--naranja-oscuro)">' + icono('mensaje') + '</div>' +
         '<div class="texto"><div class="titulo">' + e.mensajesAbiertos + ' consultas de familias abiertas</div><div class="sub">secretaría y pedagógico</div></div></div>' +
     '</div>' +
-    '<div class="alertita info">El director observa todo pero no carga datos: notas las cargan los docentes, asistencia los preceptores.</div>';
+    '<div class="alertita info">El director observa todo pero no carga datos: notas las cargan los docentes, asistencia los preceptores.</div>' +
+    '<a class="btn contorno ancho" href="#/estadisticas" style="display:block;text-align:center">Ver estadísticas del colegio</a>';
 };
 
 VISTAS['director.faltas'] = function(m){
@@ -629,7 +824,6 @@ VISTAS['director.docentes'] = function(m){
 };
 
 VISTAS['director.comunicados'] = VISTAS['docente.comunicados'] || VISTAS['admin.comunicados'];
-VISTAS['director.mas'] = VISTAS['padre.mas'];
 VISTAS['director.estadisticas'] = VISTAS['admin.estadisticas'];
 
 /* ============================== SECRETARÍA / ADMIN ============================== */
@@ -655,13 +849,11 @@ function kpi(t, v, color){
 VISTAS['admin.comunicados'] = function(m){
   m.innerHTML = '<div class="titulo-seccion"><h2>Comunicados</h2><a href="#/nuevoComunicado" class="btn magenta chico">Nuevo</a></div>' +
     '<div class="alertita info">Elegís a quién llega: familias, estudiantes, docentes, preceptores o todos. Al publicar reciben push + e-mail.</div>' +
-    D().comunicados.map(function(c){
-      return tarjetaComunicado(c).replace('</div>$','');
-    }).join('');
+    D().comunicados.map(tarjetaComunicado).join('');
 };
 
 VISTAS['admin.usuarios'] = function(m){
-  m.innerHTML = '<div class="titulo-seccion"><h2>Usuarios</h2><a class="btn magenta chico">Invitar</a></div>' +
+  m.innerHTML = '<div class="titulo-seccion"><h2>Usuarios</h2><a class="btn magenta chico" href="#/invitar">Invitar</a></div>' +
     '<div class="alertita info">Las familias entran solo por invitación: e-mail + código de 4 dígitos.</div>' +
     D().usuariosAdmin.map(function(u){
       var col = {docente:'var(--magenta)', preceptor:'var(--naranja)', padre:'var(--negro)', estudiante:'var(--gris-2)'}[u.rol];
@@ -701,5 +893,161 @@ VISTAS['admin.estadisticas'] = function(m){
     '<div class="alertita aviso">' + icono('alerta') + '<div>12 familias no entran hace un mes — posible señal de desconexión temprana.</div></div>';
 };
 
-VISTAS['admin.mas'] = VISTAS['padre.mas'];
+/* ========================== VISTAS DE "MÁS" (familia) ========================== */
+
+/* Agenda del padre = la del estudiante (entregas + eventos) */
+VISTAS['padre.agenda'] = VISTAS['estudiante.agenda'];
+
+function vistaHorarios(m){
+  m.innerHTML = '<div class="titulo-seccion"><h2>Horarios · ' + esc(V().hijo().curso) + '</h2></div>' +
+    '<div class="alertita info">La grilla semanal del curso: hora de entrada, materias y aulas.</div>' +
+    D().horarios.map(function(d){
+      return '<div class="tarjeta"><h3 style="margin-top:0">' + esc(d.dia) + '</h3>' +
+        d.bloques.map(function(b){
+          return '<div class="fila"><div class="avatar" style="background:var(--magenta-suave);color:var(--magenta)">' + icono('reloj') + '</div>' +
+            '<div class="texto"><div class="titulo">' + esc(b[1]) + '</div>' +
+            '<div class="sub">' + esc(b[0]) + ' h · Aula ' + esc(b[2]) + '</div></div></div>';
+        }).join('') + '</div>';
+    }).join('');
+}
+VISTAS['padre.horarios'] = vistaHorarios;
+VISTAS['estudiante.horarios'] = vistaHorarios;
+
+function vistaFicha(m){
+  var f = D().ficha;
+  function dato(t, v){ return '<div class="fila"><div class="texto"><div class="titulo" style="font-size:.78rem;color:var(--gris-2);text-transform:uppercase;letter-spacing:.4px">' + t + '</div><div class="sub" style="font-size:.95rem;color:var(--negro);font-weight:600">' + esc(v) + '</div></div></div>'; }
+  m.innerHTML = selHijo() +
+    '<div class="titulo-seccion"><h2>Ficha médica</h2></div>' +
+    '<div class="alertita info">La declara la familia y la consulta la escuela ante una urgencia o salida didáctica.</div>' +
+    '<div class="tarjeta">' +
+      dato('Grupo sanguíneo', f.grupo) +
+      dato('Alergias', f.alergias) +
+      dato('Obra social', f.cobertura) +
+      dato('Contacto de emergencia', f.contacto) +
+      dato('Observaciones', f.observaciones) +
+    '</div>';
+  engancharSel();
+}
+VISTAS['padre.ficha'] = vistaFicha;
+VISTAS['estudiante.ficha'] = vistaFicha;
+
+window.avisarRetiro = function(){
+  D().retiroHoy.aviso = true;
+  V().pintar();
+};
+
+function vistaSalida(m){
+  var r = D().retiroHoy;
+  m.innerHTML = selHijo() +
+    '<div class="titulo-seccion"><h2>Hora de salida</h2></div>' +
+    '<div class="tarjeta" style="border-left:5px solid var(--naranja)"><h3 style="margin-top:0">Hoy</h3>' +
+      '<div class="fila"><div class="avatar" style="background:var(--naranja-suave);color:var(--naranja-oscuro)">' + icono('salida') + '</div>' +
+      '<div class="texto"><div class="titulo">' + esc(r.quien) + '</div>' +
+      '<div class="sub">retira a las ' + esc(r.hora) + ' h</div></div>' +
+      '<span class="etiqueta ' + (r.aviso?'magenta':'naranja') + '">' + (r.aviso?'avisado':'en el día') + '</span></div>' +
+    '</div>' +
+    '<div class="titulo-seccion"><h2>Autorizados a retirar</h2></div>' +
+    '<div class="tarjeta">' +
+      D().autorizados.map(function(a){
+        return '<div class="fila"><div class="avatar" style="background:var(--magenta-suave);color:var(--magenta)">' + esc(a.nombre.charAt(0)) + '</div>' +
+          '<div class="texto"><div class="titulo">' + esc(a.nombre) + '</div><div class="sub">' + esc(a.vinculo) + '</div></div></div>';
+      }).join('') +
+    '</div>' +
+    (r.aviso
+      ? '<div class="alertita" style="background:var(--verde-suave);color:var(--verde)">Aviso enviado — portería ya sabe del cambio de hoy.</div>'
+      : '<a class="btn contorno ancho" style="display:block;text-align:center" onclick="avisarRetiro()">Avisar un cambio de retiro para hoy</a>') +
+    '<div class="alertita info">Solo las personas de esta lista pueden retirar al alumno. Cambios permanentes se piden en secretaría.</div>';
+  engancharSel();
+}
+VISTAS['padre.salida'] = vistaSalida;
+VISTAS['estudiante.salida'] = vistaSalida;
+
+window.togglePref = function(id, btn){
+  D().notifPrefs.forEach(function(p){ if(p.id===id) p.on = !p.on; });
+  V().pintar();
+};
+
+function vistaNotifPrefs(m){
+  m.innerHTML = '<div class="titulo-seccion"><h2>Notificaciones</h2></div>' +
+    '<div class="alertita info">Elegís qué llega al celular. Las urgencias siempre se notifican.</div>' +
+    '<div class="tarjeta">' +
+      D().notifPrefs.map(function(p){
+        return '<div class="fila"><div class="texto"><div class="titulo">' + esc(p.label) + '</div>' +
+          '<div class="sub">' + esc(p.detalle) + '</div></div>' +
+          '<button class="switch' + (p.on?' on':'') + '" onclick="togglePref(\'' + p.id + '\',this)" aria-label="activar"></button></div>';
+      }).join('') +
+    '</div>';
+}
+VISTAS['padre.notifPrefs'] = vistaNotifPrefs;
+VISTAS['estudiante.notifPrefs'] = vistaNotifPrefs;
+['docente','preceptor','director','admin'].forEach(function(r){ VISTAS[r + '.notifPrefs'] = vistaNotifPrefs; });
+
+function vistaDatosAlumno(m){
+  var d = D().datosAlumno;
+  function dato(t, v){ return '<div class="fila"><div class="texto"><div class="titulo" style="font-size:.78rem;color:var(--gris-2);text-transform:uppercase;letter-spacing:.4px">' + t + '</div><div class="sub" style="font-size:.95rem;color:var(--negro);font-weight:600">' + esc(v) + '</div></div></div>'; }
+  m.innerHTML = selHijo() +
+    '<div class="titulo-seccion"><h2>Datos del alumno</h2></div>' +
+    '<div class="tarjeta">' +
+      dato('Nombre', d.nombre) +
+      dato('Curso', d.curso) +
+      dato('DNI', d.dni) +
+      dato('Docente de referencia', d.docente) +
+      dato('Preceptor', d.preceptor) +
+      dato('Contacto de la familia', d.contacto) +
+    '</div>' +
+    '<div class="alertita info">Si algún dato está mal, se corrige en secretaría.</div>';
+  engancharSel();
+}
+VISTAS['padre.datosAlumno'] = vistaDatosAlumno;
+VISTAS['estudiante.datosAlumno'] = vistaDatosAlumno;
+
+/* Justificar una falta: la familia explica y la escuela recibe el motivo */
+VISTAS['padre.justificar'] = function(m){
+  var ausentes = D().asistenciaMes.filter(function(d){ return d.e==='A'; });
+  m.innerHTML = selHijo() +
+    '<div class="titulo-seccion"><h2>Justificar falta</h2><a href="#/asistencia" style="font-size:.8rem">Volver</a></div>' +
+    '<div class="tarjeta">' +
+      '<div class="campo"><label>Día de la ausencia</label><select id="jf-dia">' +
+        (ausentes.length ? ausentes.map(function(d){ return '<option value="' + d.dia + '">' + d.dia + ' de octubre</option>'; }).join('') : '<option>No hay faltas este mes</option>') +
+      '</select></div>' +
+      '<div class="campo"><label>Motivo</label><select id="jf-motivo">' +
+        ['Enfermedad','Turno médico','Motivo familiar','Otro'].map(function(t){ return '<option>' + t + '</option>'; }).join('') + '</select></div>' +
+      '<div class="campo"><label>Detalle (opcional)</label><textarea id="jf-detalle" rows="2" placeholder="Ej. gripe, certificado médico adjunto"></textarea></div>' +
+      '<button class="btn naranja ancho" id="jf-enviar">Enviar justificación</button>' +
+      '<p class="nota">El preceptor la recibe al instante y puede pedir el certificado por mensaje.</p>' +
+    '</div>';
+  engancharSel();
+  el('jf-enviar').onclick = function(){
+    var dia = Number(el('jf-dia').value);
+    if(!dia){ el('jf-dia').focus(); return; }
+    D().asistenciaMes.forEach(function(d){ if(d.dia===dia) d.e = 'J'; });
+    D().escuela.sinJustificar = Math.max(0, D().escuela.sinJustificar - 1);
+    location.hash = '#/asistencia';
+  };
+};
+
+/* Invitación: la escuela genera el acceso (e-mail + código), nadie se registra solo */
+VISTAS['admin.invitar'] = function(m){
+  m.innerHTML =
+    '<div class="titulo-seccion"><h2>Invitar usuario</h2><a href="#/usuarios" style="font-size:.8rem">Volver</a></div>' +
+    '<div class="tarjeta">' +
+      '<div class="campo"><label>Nombre y apellido</label><input id="iv-nombre" placeholder="Ej. Pérez, María"></div>' +
+      '<div class="campo"><label>E-mail</label><input id="iv-email" type="email" placeholder="correo@mail.com"></div>' +
+      '<div class="campo"><label>Rol</label><select id="iv-rol">' +
+        '<option value="padre">Padre/Madre</option><option value="estudiante">Estudiante</option>' +
+        '<option value="docente">Docente</option><option value="preceptor">Preceptor</option><option value="director">Director/a</option></select></div>' +
+      '<div class="campo"><label>Vínculo / detalle</label><input id="iv-det" placeholder="Ej. mamá de Sosa, Pablo (1° B)"></div>' +
+      '<button class="btn naranja ancho" id="iv-enviar">Generar invitación</button>' +
+      '<p class="nota">Le llega un e-mail con un código de 4 dígitos para crear su acceso.</p>' +
+    '</div>';
+  el('iv-enviar').onclick = function(){
+    var n = el('iv-nombre').value.trim(), e = el('iv-email').value.trim();
+    if(!n){ el('iv-nombre').focus(); return; }
+    if(!e || e.indexOf('@')<0){ el('iv-email').focus(); return; }
+    D().usuariosAdmin.unshift({ nombre:n, rol:el('iv-rol').value, detalle:(el('iv-det').value.trim()||e) + ' · invitado' });
+    alert('Invitación enviada a ' + e + '. Recibirá su código de acceso por e-mail.');
+    location.hash = '#/usuarios';
+  };
+};
+
 })();
