@@ -356,6 +356,37 @@ VISTAS['preceptor.llamados'] = function(m){
     }).join('');
 };
 
+/* Asistencia docente: el preceptor marca presente / licencia / ausente.
+   Estados: P verde (en el aula), L magenta (licencia avisada), A rojo (ausente sin aviso). */
+function filaDocente(dt, i, editable){
+  var estados = [['P','presente'],['L','licencia'],['A','ausente']];
+  var color = dt.estado==='P' ? 'var(--verde-suave)' : dt.estado==='L' ? 'var(--magenta-suave)' : 'var(--rojo-suave)';
+  var colorTxt = dt.estado==='P' ? 'var(--verde)' : dt.estado==='L' ? 'var(--magenta)' : 'var(--rojo)';
+  var marcas = estados.map(function(par){
+    var on = dt.estado===par[0];
+    return '<button class="marca-doc ' + par[0] + (on?' on':'') + '"' +
+      (editable ? ' onclick="marcarDocente(' + i + ',\'' + par[0] + '\')"' : ' disabled') + '>' + par[0] + '</button>';
+  }).join('');
+  return '<div class="fila"><div class="avatar" style="background:' + color + ';color:' + colorTxt + '">' + esc(dt.nombre.charAt(0)) + '</div>' +
+    '<div class="texto"><div class="titulo">' + esc(dt.nombre) + ' · ' + esc(dt.materia) + '</div>' +
+    '<div class="sub">' + esc(dt.cursos) + (dt.detalle ? ' · ' + esc(dt.detalle) : '') + '</div></div>' +
+    '<div class="estados-doc">' + marcas + '</div></div>';
+}
+
+window.marcarDocente = function(i, e){
+  D().docentesHoy[i].estado = e;
+  pintar();
+};
+
+VISTAS['preceptor.docentes'] = function(m){
+  m.innerHTML =
+    '<div class="titulo-seccion"><h2>Asistencia docente · hoy</h2></div>' +
+    '<div class="alertita info">Marcás vos: P = está en el aula, L = pidió licencia, A = ausente sin aviso. Dirección lo ve al instante.</div>' +
+    '<div class="tarjeta">' +
+      D().docentesHoy.map(function(dt,i){ return filaDocente(dt,i,true); }).join('') +
+    '</div>';
+};
+
 VISTAS['preceptor.comunicados'] = VISTAS['docente.comunicados'];
 VISTAS['preceptor.mas'] = VISTAS['padre.mas'];
 
@@ -367,16 +398,23 @@ VISTAS['director.resumen'] = function(m){
   function kpi(v, t, color){
     return '<div class="kpi"><b style="color:' + color + '">' + v + '</b><span>' + t + '</span></div>';
   }
+  var docP = D().docentesHoy.filter(function(d){return d.estado==='P';}).length;
+  var docA = D().docentesHoy.filter(function(d){return d.estado==='A';}).length;
+  var docL = D().docentesHoy.filter(function(d){return d.estado==='L';}).length;
   m.innerHTML =
     '<div class="titulo-seccion"><h2>Hoy en la escuela</h2></div>' +
     '<div class="kpis">' +
-      kpi(e.asistenciaHoy + '%', 'asistencia', 'var(--verde)') +
-      kpi(e.faltasHoy, 'faltas hoy', 'var(--naranja)') +
+      kpi(e.asistenciaHoy + '%', 'asistencia alumnos', 'var(--verde)') +
+      kpi(docP + '/' + D().docentesHoy.length, 'docentes en el aula', docA ? 'var(--rojo)' : 'var(--verde)') +
       kpi(e.enRiesgo, 'en riesgo', 'var(--rojo)') +
       kpi(e.mensajesAbiertos, 'consultas', 'var(--negro)') +
     '</div>' +
     '<div class="titulo-seccion"><h2>Necesita atención</h2></div>' +
     '<div class="tarjeta">' +
+      (docA ? '<div class="fila"><div class="avatar" style="background:var(--rojo-suave);color:var(--rojo)">' + icono('alerta') + '</div>' +
+        '<div class="texto"><div class="titulo">' + docA + ' docente' + (docA>1?'s':'') + ' ausente' + (docA>1?'s':'') + ' sin aviso</div><div class="sub">clases sin cubrir — organizar suplente</div></div></div>' : '') +
+      (docL ? '<div class="fila"><div class="avatar" style="background:var(--magenta-suave);color:var(--magenta)">' + icono('usuarios') + '</div>' +
+        '<div class="texto"><div class="titulo">' + docL + ' licencia' + (docL>1?'s':'') + ' activa' + (docL>1?'s':'') + '</div><div class="sub">ver detalle en "Docentes"</div></div></div>' : '') +
       '<div class="fila"><div class="avatar" style="background:var(--rojo-suave);color:var(--rojo)">' + icono('alerta') + '</div>' +
         '<div class="texto"><div class="titulo">' + e.sinJustificar + ' faltas sin justificar</div><div class="sub">los padres no respondieron la justificación</div></div></div>' +
       '<div class="fila"><div class="avatar" style="background:var(--rojo-suave);color:var(--rojo)">' + icono('boletin') + '</div>' +
@@ -410,6 +448,25 @@ VISTAS['director.riesgo'] = function(m){
           '<div class="sub">' + esc(a.detalle) + '</div></div></div>';
       }).join('') +
     '</div>';
+};
+
+/* Tablero del cuerpo docente: quién está, quién pidió licencia, qué queda sin cubrir */
+VISTAS['director.docentes'] = function(m){
+  var sinCubrir = D().docentesHoy.filter(function(d){ return d.estado==='A'; });
+  var licencias = D().docentesHoy.filter(function(d){ return d.estado==='L'; });
+  m.innerHTML =
+    '<div class="titulo-seccion"><h2>Cuerpo docente · hoy</h2></div>' +
+    (sinCubrir.length ? '<div class="alertita" style="background:var(--rojo-suave);color:var(--rojo)">' + icono('alerta') +
+      '<div><b>' + sinCubrir.length + ' ausente' + (sinCubrir.length>1?'s':'') + ' sin aviso.</b> Hay clases sin cubrir — asignar suplente o avisar al curso.</div></div>' : '') +
+    '<div class="tarjeta">' +
+      D().docentesHoy.map(function(dt,i){ return filaDocente(dt,i,false); }).join('') +
+    '</div>' +
+    (licencias.length ? '<div class="titulo-seccion"><h2>Licencias activas</h2></div><div class="tarjeta">' +
+      licencias.map(function(dt){
+        return '<div class="fila"><div class="texto"><div class="titulo">' + esc(dt.nombre) + ' · ' + esc(dt.materia) + '</div>' +
+          '<div class="sub">' + esc(dt.detalle) + '</div></div></div>';
+      }).join('') + '</div>' : '') +
+    '<div class="alertita info">Registra el preceptor al verificar el aula. Sirve para organizar cobertura y llevar el registro de licencias.</div>';
 };
 
 VISTAS['director.comunicados'] = VISTAS['docente.comunicados'] || VISTAS['admin.comunicados'];

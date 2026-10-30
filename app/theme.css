@@ -265,3 +265,11 @@ svg{display:block}
 .kpi b{display:block;font-size:1.35rem;line-height:1.1}
 .kpi span{font-size:.68rem;color:var(--gris-2);text-transform:uppercase;letter-spacing:.4px}
 @media (max-width:520px){.kpis{grid-template-columns:repeat(2,1fr)}}
+
+/* ---- Marcas de asistencia docente (P/L/A) ---- */
+.estados-doc{display:flex;gap:6px;flex-shrink:0}
+.marca-doc{width:34px;height:34px;border-radius:10px;border:1.5px solid #DDD;background:#fff;font-weight:800;font-size:.8rem;cursor:pointer;color:#AAA}
+.marca-doc:disabled{cursor:default}
+.marca-doc.P.on{border-color:var(--verde);background:var(--verde-suave);color:var(--verde)}
+.marca-doc.L.on{border-color:var(--magenta);background:var(--magenta-suave);color:var(--magenta)}
+.marca-doc.A.on{border-color:var(--rojo);background:var(--rojo-suave);color:var(--rojo)}

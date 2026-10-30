@@ -98,6 +98,16 @@ var DEMO = {
     { nombre: 'Sosa, Pablo', curso: '1° B', detalle: 'Nota pendiente en Biología', tipo: 'nota' }
   ],
 
+  /* Asistencia del cuerpo docente — la marca el preceptor */
+  docentesHoy: [
+    { nombre: 'López, Ana',      materia: 'Biología',   cursos: '3°A 3°B 4°A', estado: 'P', detalle: '' },
+    { nombre: 'Fernández, Sol',  materia: 'Matemática', cursos: '1°A 1°B',     estado: 'P', detalle: '' },
+    { nombre: 'Ibarra, José',    materia: 'Historia',   cursos: '3°A 4°A',     estado: 'L', detalle: 'Licencia médica hasta el 5/11' },
+    { nombre: 'Moya, Carla',     materia: 'Lengua',     cursos: '3°A 2°A',     estado: 'A', detalle: 'Sin aviso — 2 horas sin cubrir' },
+    { nombre: 'Quiroga, Ramón',  materia: 'Ed. Física', cursos: 'todos',       estado: 'P', detalle: '' },
+    { nombre: 'Benítez, Lucrecia', materia: 'Inglés',   cursos: '1°A 1°B 2°A', estado: 'L', detalle: 'Licencia por maternidad (suplente: Vega)' }
+  ],
+
   /* Vista del director: toda la escuela de un vistazo */
   escuela: {
     asistenciaHoy: 92, faltasHoy: 8, sinJustificar: 3, enRiesgo: 4, mensajesAbiertos: 2,

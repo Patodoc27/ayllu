@@ -16,7 +16,7 @@ create table if not exists schools (
 create table if not exists profiles (
   id uuid primary key references auth.users on delete cascade,
   school_id uuid references schools(id),
-  rol text not null check (rol in ('padre','estudiante','docente','preceptor','admin')),
+  rol text not null check (rol in ('padre','estudiante','docente','preceptor','director','admin')),
   nombre text not null,
   apellido text,
   email text not null,
@@ -337,4 +337,18 @@ create table if not exists materials (
   url_externa text,                                -- o link
   subida_por uuid references profiles(id),
   created_at timestamptz default now()
+);
+
+-- ============ ASISTENCIA DEL CUERPO DOCENTE ============
+-- La marca el preceptor al verificar el aula; dirección organiza cobertura.
+create table if not exists teacher_attendance (
+  id uuid primary key default gen_random_uuid(),
+  school_id uuid references schools(id) not null,
+  docente_id uuid references profiles(id) not null,
+  fecha date not null,
+  estado text not null check (estado in ('P','L','A')),  -- presente / licencia / ausente
+  detalle text,                                        -- "licencia médica hasta...", "sin aviso"
+  registrado_por uuid references profiles(id),
+  created_at timestamptz default now(),
+  unique (docente_id, fecha)
 );

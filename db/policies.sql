@@ -108,3 +108,7 @@ create policy p_grades_write on grades for all using (
 alter table materials enable row level security;
 create policy p_mat_sel on materials for select using (true);
 create policy p_mat_write on materials for all using (es_staff());
+
+alter table teacher_attendance enable row level security;
+create policy p_ta_sel on teacher_attendance for select using (es_staff());
+create policy p_ta_write on teacher_attendance for all using (mi_rol() in ('preceptor','admin','director'));
