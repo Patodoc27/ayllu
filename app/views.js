@@ -236,16 +236,87 @@ VISTAS['estudiante.agenda'] = function(m){
 
 /* ============================== DOCENTE ============================== */
 
+/* Planilla del curso: el docente edita la nota y se guarda al instante.
+   La familia/estudiante la ve en su boletín sin recargar (en la versión real: Realtime). */
+window.guardarNota = function(aId, colId, input){
+  var v = input.value.trim();
+  var nota = v === '' ? null : Number(v);
+  if(nota !== null && (isNaN(nota) || nota < 0 || nota > 10)){ input.value=''; return; }
+  D().planilla.notas[aId][colId] = nota;
+  var col = D().planilla.columnas.filter(function(c){ return c.id===colId; })[0];
+  var mat = D().notas.filter(function(n){ return n.materia===D().planilla.materia; })[0];
+  if(mat && aId==='a5'){ // Martina = alumna del demo familia
+    var tri = mat.tri[D().planilla.trimestre];
+    var it = tri.items.filter(function(x){ return x.act===col.titulo; })[0];
+    if(it){ it.nota = nota; } else { tri.items.push({act:col.titulo, tipo:col.tipo, nota:nota, entrega:col.entrega}); }
+  }
+  var st = document.getElementById('guardado-vivo');
+  if(st){ st.textContent = 'Guardado ' + new Date().toLocaleTimeString() + ' · la familia ya ve esta nota'; st.classList.add('flash'); setTimeout(function(){ st.classList.remove('flash'); }, 1200); }
+  input.classList.add('guardada'); setTimeout(function(){ input.classList.remove('guardada'); }, 900);
+};
+
+VISTAS['docente.planilla'] = function(m){
+  var p = D().planilla;
+  var head = '<tr><th>Alumno</th>' + p.columnas.map(function(c){
+    return '<th><div>' + esc(c.titulo) + '</div><span>' + esc(c.tipo) + ' · ' + esc(c.entrega) + '</span></th>';
+  }).join('') + '</tr>';
+  var filas = D().listaCurso.map(function(a){
+    var ns = p.notas[a.id] || {};
+    return '<tr><td class="al">' + esc(a.nombre) + '</td>' +
+      p.columnas.map(function(c){
+        var v = ns[c.id];
+        return '<td><input class="celda-nota' + (v!==null && v!==undefined && v<6 && v>0 ? ' baja':'') + '"' +
+          ' data-a="' + a.id + '" data-c="' + c.id + '" value="' + (v===null||v===undefined?'':v) + '"' +
+          ' inputmode="numeric" placeholder="—"></td>';
+      }).join('') + '</tr>';
+  }).join('');
+  m.innerHTML =
+    '<div class="titulo-seccion"><h2>' + esc(p.materia) + ' · ' + esc(p.curso) + '</h2>' +
+      '<a href="#/cargar" class="btn magenta chico">Nueva actividad</a></div>' +
+    '<div class="alertita info"><b>Carga en tiempo real:</b> escribís la nota y se guarda sola. Ese momento ya la ve el estudiante y su familia en el boletín.</div>' +
+    '<div class="tarjeta" style="padding:0;overflow-x:auto">' +
+      '<table class="planilla"><thead>' + head + '</thead><tbody>' + filas + '</tbody></table></div>' +
+    '<div class="guardado-vivo" id="guardado-vivo">Listo para cargar · ' + p.trimestre + '° trimestre</div>';
+  m.querySelectorAll('.celda-nota').forEach(function(inp){
+    inp.addEventListener('change', function(){ guardarNota(inp.getAttribute('data-a'), inp.getAttribute('data-c'), inp); });
+  });
+};
+
 VISTAS['docente.misCursos'] = function(m){
+  var r = D().docenteResumen;
+  var totalPend = D().cursosDocente.reduce(function(s,c){ return s + (c.alumnos - c.cargadas); }, 0);
+  var kpis =
+    '<div class="kpis">' +
+      '<div class="kpi"><b>' + r.clasesHoy.length + '</b><span>clases hoy</span></div>' +
+      '<div class="kpi' + (totalPend?' warn':'') + '"><b>' + totalPend + '</b><span>notas por cargar</span></div>' +
+      '<div class="kpi"><b>' + r.actividades + '</b><span>actividades activas</span></div>' +
+      '<div class="kpi"><b>' + r.materiales + '</b><span>materiales</span></div>' +
+    '</div>';
+  var clases =
+    '<div class="tarjeta"><h3 style="margin-top:0">Tus clases de hoy</h3>' +
+    r.clasesHoy.map(function(c){
+      return '<div class="fila"><div><div style="font-weight:700">' + esc(c.curso) + ' · ' + esc(c.materia) + '</div>' +
+        '<div class="fecha">' + esc(c.h) + ' h · Aula ' + esc(c.aula) + '</div></div>' +
+        '<a class="btn neutro chico" href="#/planilla">Planilla</a></div>';
+    }).join('') + '</div>';
+  var acciones =
+    '<div class="grupo">' +
+      '<a class="appicon" href="#/planilla"><span class="ic" style="background:var(--magenta)">' + icono('boletin') + '</span><span>Planilla de notas</span></a>' +
+      '<a class="appicon" href="#/cargar"><span class="ic" style="background:var(--naranja)">' + icono('lapiz') + '</span><span>Nueva actividad</span></a>' +
+      '<a class="appicon" href="#/materiales"><span class="ic" style="background:var(--negro)">' + icono('archivo') + '</span><span>Materiales</span></a>' +
+      '<a class="appicon" href="#/comunicados"><span class="ic" style="background:var(--magenta)">' + icono('campana') + '</span><span>Comunicados</span></a>' +
+    '</div>';
   m.innerHTML =
     '<div class="titulo-seccion"><h2>Mis materias</h2><a href="#/cargar" class="btn magenta chico">Nueva actividad</a></div>' +
+    kpis + clases + acciones +
+    '<h3 style="margin:16px 0 0">Carga de notas</h3>' +
     D().cursosDocente.map(function(c){
       var faltan = c.alumnos - c.cargadas;
-      return '<div class="tarjeta" style="display:flex;align-items:center;gap:14px">' +
+      return '<a class="tarjeta link" href="#/planilla" style="display:flex;align-items:center;gap:14px">' +
         '<div style="width:46px;height:46px;border-radius:12px;background:var(--magenta);color:#fff;display:flex;align-items:center;justify-content:center">' + icono('boletin') + '</div>' +
         '<div style="flex:1"><div style="font-weight:700">' + esc(c.materia) + ' · ' + esc(c.curso) + '</div>' +
         '<div class="fecha">' + c.cargadas + '/' + c.alumnos + ' notas cargadas' + (faltan?' — faltan '+faltan:'') + '</div></div>' +
-        (faltan ? '<span class="badge" style="position:static">' + faltan + '</span>' : icono('flecha')) + '</div>';
+        (faltan ? '<span class="badge" style="position:static">' + faltan + '</span>' : icono('flecha')) + '</a>';
     }).join('') +
     '<div class="alertita info">Solo vos podés cargar y editar las notas de tus materias. Familias y estudiantes las ven al instante.</div>';
 };

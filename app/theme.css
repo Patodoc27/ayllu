@@ -273,3 +273,25 @@ svg{display:block}
 .marca-doc.P.on{border-color:var(--verde);background:var(--verde-suave);color:var(--verde)}
 .marca-doc.L.on{border-color:var(--magenta);background:var(--magenta-suave);color:var(--magenta)}
 .marca-doc.A.on{border-color:var(--rojo);background:var(--rojo-suave);color:var(--rojo)}
+
+/* ---- Planilla de notas del docente ---- */
+.planilla{width:100%;border-collapse:collapse;min-width:560px}
+.planilla th{background:var(--negro);color:#fff;font-size:.78rem;padding:10px 8px;text-align:left;font-weight:600}
+.planilla th span{display:block;font-weight:400;font-size:.62rem;opacity:.7}
+.planilla td{padding:6px 8px;border-bottom:1px solid #EEE}
+.planilla td.al{font-weight:600;font-size:.88rem;white-space:nowrap}
+.planilla tr:hover td{background:#FBF7FA}
+.celda-nota{width:52px;padding:7px 6px;border:1.5px solid #DDD;border-radius:9px;font:inherit;font-weight:700;text-align:center;transition:.2s}
+.celda-nota:focus{outline:none;border-color:var(--magenta)}
+.celda-nota.baja{border-color:var(--rojo);color:var(--rojo);background:var(--rojo-suave)}
+.celda-nota.guardada{border-color:var(--verde);background:var(--verde-suave)}
+.guardado-vivo{margin:10px 2px;font-size:.78rem;color:var(--gris-2);transition:.3s}
+.guardado-vivo.flash{color:var(--verde);font-weight:700}
+a.tarjeta.link{display:block;text-decoration:none;color:inherit}
+.kpi.warn b{color:var(--naranja)}
+.kpi.warn{border-left:4px solid var(--naranja)}
+
+/* Accesos rápidos en grilla */
+.grupo{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:14px}
+a.appicon{text-decoration:none}
+a.appicon:hover{transform:translateY(-2px)}

@@ -95,6 +95,41 @@ var DEMO = {
     { curso: '4° A', materia: 'Biología', alumnos: 25, cargadas: 18 }
   ],
 
+  /* Planilla de carga del docente: alumnos × actividades.
+     Editar una celda guarda al instante → familia/estudiante lo ven ya. */
+  planilla: {
+    materia: 'Biología', curso: '3° A', trimestre: 2,
+    columnas: [
+      { id: 'tp1', titulo: 'TP 1 · Célula', tipo: 'Trabajo práctico', entrega: '12/08' },
+      { id: 'tp2', titulo: 'TP 2 · Tejidos', tipo: 'Trabajo práctico', entrega: '02/09' },
+      { id: 'ev1', titulo: 'Evaluación 1', tipo: 'Evaluación escrita', entrega: '25/09' },
+      { id: 'pr1', titulo: 'Ecosistemas', tipo: 'Presentación en grupo', entrega: '12/11' }
+    ],
+    /* nota = número 1-10, null = sin cargar, 0 = no entregó */
+    notas: {
+      a1: { tp1: 8, tp2: 7,  ev1: 9,  pr1: null },
+      a2: { tp1: 9, tp2: 9,  ev1: 8,  pr1: null },
+      a3: { tp1: 7, tp2: 6,  ev1: null, pr1: null },
+      a4: { tp1: 5, tp2: 0,  ev1: null, pr1: null },
+      a5: { tp1: 6, tp2: null, ev1: null, pr1: null },
+      a6: { tp1: 9, tp2: 8,  ev1: 7,  pr1: null },
+      a7: { tp1: 8, tp2: 8,  ev1: null, pr1: null },
+      a8: { tp1: 6, tp2: 7,  ev1: null, pr1: null },
+      a9: { tp1: null, tp2: null, ev1: null, pr1: null },
+      a10:{ tp1: 7, tp2: null, ev1: null, pr1: null }
+    }
+  },
+
+  docenteResumen: {
+    clasesHoy: [
+      { h: '08:00', curso: '3° A', materia: 'Biología', aula: 'Lab 1' },
+      { h: '10:15', curso: '3° B', materia: 'Biología', aula: '12' },
+      { h: '14:00', curso: '4° A', materia: 'Biología', aula: 'Lab 1' }
+    ],
+    actividades: 4,
+    materiales: 6
+  },
+
   listaCurso: [
     { id: 'a1', nombre: 'Acosta, Bruno', estado: 'P' }, { id: 'a2', nombre: 'Benítez, Carla', estado: 'P' },
     { id: 'a3', nombre: 'Chávez, Delfina', estado: 'P' }, { id: 'a4', nombre: 'Díaz, Emilio', estado: 'T' },
