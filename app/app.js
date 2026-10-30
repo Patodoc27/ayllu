@@ -245,5 +245,9 @@ if('serviceWorker' in navigator){
   });
 }
 
-if(restaurarSesion()) pintar(); else mostrarLogin();
+/* ?demo=padre|docente|preceptor|estudiante|admin entra directo (solo sin Supabase) */
+var demoRol = (location.search.match(/[?&]demo=(\w+)/)||[])[1];
+if(demoRol && ROLES[demoRol] && !CONFIG.SUPABASE_URL){
+  entrar({ nombre:'Demo '+demoRol, rol:demoRol });
+} else if(restaurarSesion()) pintar(); else mostrarLogin();
 })();

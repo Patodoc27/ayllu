@@ -189,10 +189,10 @@ VISTAS['docente.mas'] = VISTAS['padre.mas'];
 
 function listaAsistencia(editable){
   var html = '<div class="tarjeta"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
-    '<h3>3° A · Hoy</h3><span class="etiqueta naranja">' + D().listaCurso.filter(function(a){return a.e!=='P';}).length + ' novedades</span></div>';
+    '<h3>3° A · Hoy</h3><span class="etiqueta naranja">' + D().listaCurso.filter(function(a){return a.estado!=='P';}).length + ' novedades</span></div>';
   D().listaCurso.forEach(function(a){
     html += '<div class="fila"><div class="texto"><div class="titulo">' + esc(a.nombre) + '</div></div>' +
-      '<div class="estado ' + a.e + '" data-id="' + a.id + '">' + a.e + '</div></div>';
+      '<div class="estado ' + a.estado + '" data-id="' + a.id + '">' + a.estado + '</div></div>';
   });
   html += '</div>';
   if(editable){
