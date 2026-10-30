@@ -15,11 +15,35 @@ var DEMO = {
     { id: 'c4', categoria: 'autorizacion', titulo: 'Salida didáctica al museo', cuerpo: 'El 12 de noviembre el curso visitará el Museo de Ciencias Naturales. Costo: $3.500. Se requiere autorización firmada.', fecha: 'Hace 4 días', leido: true, requiereRespuesta: true, opciones: ['Autorizo', 'No autorizo'], respondido: false }
   ],
 
+  /* Por materia → por trimestre → actividades (tipo, nota, fecha de entrega).
+     nota 0 = entregado sin corregir; null = aún no entregó (pendiente). */
   notas: [
-    { materia: 'Matemática', items: [ { act: 'TP 3 · Funciones', nota: 8 }, { act: 'Evaluación 2', nota: 7 } ], trimestre: 7.5 },
-    { materia: 'Lengua', items: [ { act: 'Análisis de texto', nota: 9 }, { act: 'Evaluación 2', nota: 8 } ], trimestre: 8.5 },
-    { materia: 'Biología', items: [ { act: 'Informe laboratorio', nota: 0 } ], trimestre: null, pendiente: true },
-    { materia: 'Historia', items: [ { act: 'Evaluación 2', nota: 4 } ], trimestre: 4 }
+    { materia: 'Matemática', tri: {
+      1: { items: [ { act: 'TP 3 · Funciones', tipo: 'Trabajo práctico', nota: 8, entrega: '14/04' },
+                    { act: 'Evaluación escrita 2 · Funciones', tipo: 'Evaluación escrita', nota: 7, entrega: '28/04' } ], trimestre: 7.5 },
+      2: { items: [ { act: 'TP 1 · Geometría', tipo: 'Trabajo práctico', nota: 9, entrega: '12/08' } ], trimestre: null },
+      3: { items: [], trimestre: null } } },
+    { materia: 'Lengua', tri: {
+      1: { items: [ { act: 'Análisis de texto', tipo: 'Trabajo práctico', nota: 9, entrega: '10/04' },
+                    { act: 'Evaluación escrita 2', tipo: 'Evaluación escrita', nota: 8, entrega: '25/04' } ], trimestre: 8.5 },
+      2: { items: [], trimestre: null },
+      3: { items: [], trimestre: null } } },
+    { materia: 'Biología', tri: {
+      1: { items: [ { act: 'Informe de laboratorio', tipo: 'Trabajo práctico', nota: 0, entrega: '30/04' } ], trimestre: null, pendiente: true },
+      2: { items: [], trimestre: null },
+      3: { items: [], trimestre: null } } },
+    { materia: 'Historia', tri: {
+      1: { items: [ { act: 'Evaluación escrita 2', tipo: 'Evaluación escrita', nota: 4, entrega: '22/04' },
+                    { act: 'Presentación en grupo · Siglo XX', tipo: 'Presentación en grupo', nota: null, entrega: '06/11' } ], trimestre: 4 },
+      2: { items: [], trimestre: null },
+      3: { items: [], trimestre: null } } }
+  ],
+
+  /* Entregas del estudiante: lo que figura marcado en su calendario */
+  entregas: [
+    { dia: 6, titulo: 'Presentación en grupo · Siglo XX', materia: 'Historia', tipo: 'Presentación en grupo' },
+    { dia: 12, titulo: 'TP 4 · Ecuaciones', materia: 'Matemática', tipo: 'Trabajo práctico' },
+    { dia: 19, titulo: 'Evaluación escrita · Célula', materia: 'Biología', tipo: 'Evaluación escrita' }
   ],
 
   asistenciaMes: [

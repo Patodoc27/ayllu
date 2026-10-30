@@ -204,9 +204,10 @@ create table if not exists activities (
   materia text not null,
   curso text not null,
   titulo text not null,
-  tipo text,                                        -- TP / Evaluación / Cuestionario
+  tipo text,                                        -- Trabajo práctico / Evaluación escrita / Presentación en grupo / Cuestionario / Exposición oral / Otro
+  numero int,                                       -- solo si corresponde (TP 3, Evaluación 2)
   peso numeric(5,2),
-  fecha date,
+  fecha date,                                       -- fecha de entrega o evaluación: se marca en la agenda del alumno
   docente_id uuid references profiles(id),
   term int default 1
 );

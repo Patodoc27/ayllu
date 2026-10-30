@@ -157,7 +157,7 @@ function ruta(){
   var h = location.hash.replace(/^#\/?/, '');
   var rol = SESION.usuario ? SESION.usuario.rol : 'padre';
   var nav = ROLES[rol].nav;
-  if(nav.indexOf(h)<0) h = nav[0];
+  if(!VISTAS[rol+'.'+h]) h = nav[0];
   return h;
 }
 

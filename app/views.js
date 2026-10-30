@@ -50,33 +50,62 @@ VISTAS['padre.inicio'] = function(m){
   V().engancharSelectorHijo();
 };
 
+function filaNota(it){
+  var mala = it.nota!=null && it.nota>0 && it.nota<6;
+  var chip = it.nota==null ? '<span class="estado J" style="font-size:.7rem">—</span>'
+    : it.nota===0 ? '<span class="estado J" style="font-size:.85rem">PD</span>'
+    : '<span class="estado ' + (mala?'M':'P') + '" style="font-size:.85rem">' + it.nota + '</span>';
+  return '<div class="fila' + (mala?' nota-baja':'') + '"><div class="texto">' +
+    '<div class="titulo">' + esc(it.act) + '</div>' +
+    '<div class="sub">' + esc(it.tipo) + ' · entrega ' + esc(it.entrega) + '</div>' +
+    (mala ? '<span class="aviso-nota">nota baja — hablar con el docente</span>' : '') + '</div>' + chip + '</div>';
+}
+
+/* Boletín: se elige trimestre → se abren las carpetas de materias → se toca una → sus notas */
+function boletinCarpetas(t){
+  var out = '';
+  var hay = false;
+  D().notas.forEach(function(n){
+    var tri = n.tri[t] || {items:[]};
+    var count = tri.items.length;
+    var triBadge = tri.pendiente ? '<span class="etiqueta naranja">pendiente</span>'
+      : tri.trimestre!=null ? '<span class="etiqueta ' + (tri.trimestre>=6?'magenta':'negra') + '">' + tri.trimestre + '</span>'
+      : '';
+    out += '<div class="carpeta' + (count?'':' vacia') + '" data-mat="' + esc(n.materia) + '">' +
+      '<div class="carpeta-cabeza">' +
+        '<span class="ic-carpeta">' + icono('archivo') + '</span>' +
+        '<span class="carpeta-titulo">' + esc(n.materia) + '</span>' +
+        '<span class="carpeta-info">' + (count ? count + ' actividad' + (count>1?'es':'') : 'sin actividades') + '</span>' +
+        triBadge + icono('flecha') +
+      '</div><div class="carpeta-cuerpo">' +
+        tri.items.map(filaNota).join('') +
+        (tri.trimestre!=null ? '<div style="padding:8px 4px 2px"><span class="etiqueta ' + (tri.trimestre>=6?'magenta':'negra') + '">Trimestre: ' + tri.trimestre + '</span></div>' : '') +
+      '</div></div>';
+    if(count) hay = true;
+  });
+  if(!hay) out += '<div class="vacio">Todavía no hay actividades cargadas en este trimestre.</div>';
+  return out;
+}
+
+window.boletinSel = function(t){
+  document.querySelectorAll('.chip-tri').forEach(function(c){ c.classList.toggle('activo', c.getAttribute('data-t')==String(t)); });
+  var el = document.getElementById('carpetas');
+  el.innerHTML = boletinCarpetas(t);
+  el.style.display = 'block';
+  el.querySelectorAll('.carpeta').forEach(function(c){
+    c.querySelector('.carpeta-cabeza').onclick = function(){ c.classList.toggle('abierta'); };
+  });
+};
+
 VISTAS['padre.boletin'] = function(m){
   var h = V().hijo();
-  var ok=0, mal=0, pd=0;
-  D().notas.forEach(function(n){
-    if(n.pendiente){ pd++; return; }
-    if(n.trimestre!=null && n.trimestre<6) mal++; else ok++;
-  });
   m.innerHTML = V().selectorHijo() +
-    '<div class="titulo-seccion"><h2>Boletín · ' + esc(h.curso) + '</h2><span style="font-size:.75rem;color:var(--gris-2)">1er trimestre</span></div>' +
-    '<div class="resumen-nota">' +
-      '<span class="pill ok">' + ok + ' aprobadas</span>' +
-      (mal ? '<span class="pill mal">' + mal + ' en riesgo</span>' : '') +
-      (pd  ? '<span class="pill pd">' + pd + ' pendiente' + (pd>1?'s':'') + '</span>' : '') +
+    '<div class="titulo-seccion"><h2>Boletín · ' + esc(h.curso) + '</h2></div>' +
+    '<div class="selector-tri">' +
+      [1,2,3].map(function(t){ return '<button class="chip chip-tri" data-t="' + t + '" onclick="boletinSel(' + t + ')">' + t + '° trimestre</button>'; }).join('') +
     '</div>' +
-    D().notas.map(function(n){
-      var items = n.items.map(function(it){
-        var mala = it.nota>0 && it.nota<6;
-        return '<div class="fila' + (mala?' nota-baja':'') + '"><div class="texto"><div class="titulo">' + esc(it.act) + '</div>' +
-          (mala ? '<span class="aviso-nota">nota baja — hablar con el docente</span>' : '') + '</div>' +
-          '<span class="estado ' + (it.nota===0?'J':it.nota<6?'M':'P') + '" style="font-size:.85rem">' + (it.nota===0?'PD':it.nota) + '</span></div>';
-      }).join('');
-      var tri = n.pendiente
-        ? '<span class="etiqueta naranja">pendiente</span>'
-        : '<span class="etiqueta ' + (n.trimestre>=6?'magenta':'negra') + '">Trimestre: ' + (n.trimestre==null?'—':n.trimestre) + '</span>';
-      return '<div class="tarjeta"><span class="etiqueta magenta">' + esc(n.materia) + '</span>' + items +
-        '<div style="margin-top:10px">' + tri + '</div></div>';
-    }).join('');
+    '<p class="nota" id="boletin-pista">Elegí el trimestre y tocá una materia para ver sus notas.</p>' +
+    '<div id="carpetas" style="display:none"></div>';
   V().engancharSelectorHijo();
 };
 
@@ -159,7 +188,25 @@ function appIcon(ic, t, color){
   VISTAS['estudiante.' + v] = VISTAS['padre.' + v];
 });
 VISTAS['estudiante.agenda'] = function(m){
+  var diasEntrega = {};
+  D().entregas.forEach(function(e){ diasEntrega[e.dia] = e; });
+  var celdas = '';
+  for(var i=0;i<6;i++) celdas += '<div class="dia vacio"></div>'; // noviembre empieza sábado (demo)
+  for(var d=1;d<=30;d++){
+    celdas += '<div class="dia' + (diasEntrega[d]?' entrega':'') + '">' + d + (diasEntrega[d]?'<span class="punto-ent"></span>':'') + '</div>';
+  }
   m.innerHTML = '<div class="titulo-seccion"><h2>Agenda</h2></div>' +
+    '<div class="tarjeta"><div class="titulo-seccion" style="margin-top:0"><h2>Noviembre</h2></div>' +
+    '<div class="cal">' + celdas +
+      '<div class="leyenda"><span><i style="background:var(--naranja)"></i>entrega o evaluación</span></div></div></div>' +
+    '<div class="titulo-seccion"><h2>Próximas entregas</h2></div>' +
+    D().entregas.map(function(e){
+      return '<div class="tarjeta" style="display:flex;gap:14px;align-items:center">' +
+        '<div class="dia-entrega"><b>' + e.dia + '</b><span>nov</span></div>' +
+        '<div style="flex:1"><div style="font-weight:600;font-size:.9rem">' + esc(e.titulo) + '</div>' +
+        '<div class="fecha">' + esc(e.materia) + ' · ' + esc(e.tipo) + '</div></div></div>';
+    }).join('') +
+    '<div class="titulo-seccion"><h2>Eventos del colegio</h2></div>' +
     D().eventos.map(function(e){
       return '<div class="tarjeta"><span class="etiqueta naranja">' + esc(e.categoria) + '</span>' +
         '<h3>' + esc(e.titulo) + '</h3><div class="fecha">' + esc(e.fecha) + (e.hora?' · '+e.hora:'') + '</div></div>';
@@ -170,7 +217,7 @@ VISTAS['estudiante.agenda'] = function(m){
 
 VISTAS['docente.misCursos'] = function(m){
   m.innerHTML =
-    '<div class="titulo-seccion"><h2>Mis materias</h2></div>' +
+    '<div class="titulo-seccion"><h2>Mis materias</h2><a href="#/cargar" class="btn magenta chico">Nueva actividad</a></div>' +
     D().cursosDocente.map(function(c){
       var faltan = c.alumnos - c.cargadas;
       return '<div class="tarjeta" style="display:flex;align-items:center;gap:14px">' +
@@ -180,6 +227,44 @@ VISTAS['docente.misCursos'] = function(m){
         (faltan ? '<span class="badge" style="position:static">' + faltan + '</span>' : icono('flecha')) + '</div>';
     }).join('') +
     '<div class="alertita info">Solo vos podés cargar y editar las notas de tus materias. Familias y estudiantes las ven al instante.</div>';
+};
+
+/* Cargar actividad: el docente elige tipo, tema, número si corresponde y fecha de entrega.
+   Al guardar → la notificación llega a la familia y la fecha se marca en la agenda del alumno. */
+VISTAS['docente.cargar'] = function(m){
+  var TIPOS = ['Trabajo práctico','Evaluación escrita','Presentación en grupo','Cuestionario','Exposición oral','Otro'];
+  m.innerHTML =
+    '<div class="titulo-seccion"><h2>Nueva actividad</h2><a href="#/misCursos" style="font-size:.8rem">Volver</a></div>' +
+    '<div class="tarjeta">' +
+      '<div class="campo"><label>Curso y materia</label>' +
+        '<select id="ca-curso">' +
+          D().cursosDocente.map(function(c){ return '<option>' + esc(c.materia) + ' · ' + esc(c.curso) + '</option>'; }).join('') +
+        '</select></div>' +
+      '<div class="campo"><label>Tipo de actividad</label>' +
+        '<div id="ca-tipos">' + TIPOS.map(function(t,i){ return '<span class="chip chip-tipo' + (i===0?' activo':'') + '" data-t="' + esc(t) + '">' + esc(t) + '</span>'; }).join('') + '</div></div>' +
+      '<div class="campo"><label>Número <span style="font-weight:400;color:var(--gris-2)">(solo si corresponde)</span></label>' +
+        '<input id="ca-num" type="number" min="0" inputmode="numeric" placeholder="Ej. 3"></div>' +
+      '<div class="campo"><label>Tema o consigna</label>' +
+        '<input id="ca-tema" placeholder="Ej. Funciones lineales"></div>' +
+      '<div class="campo"><label>Fecha de entrega o evaluación</label>' +
+        '<input id="ca-fecha" type="date"></div>' +
+      '<button class="btn naranja ancho" id="ca-guardar">Publicar actividad</button>' +
+      '<p class="nota">Al publicar: les llega notificación a las familias y la fecha se marca en la agenda de cada alumno.</p>' +
+    '</div>';
+  m.querySelectorAll('.chip-tipo').forEach(function(c){
+    c.onclick = function(){
+      m.querySelectorAll('.chip-tipo').forEach(function(x){ x.classList.remove('activo'); });
+      c.classList.add('activo');
+    };
+  });
+  el('ca-guardar').onclick = function(){
+    var tema = el('ca-tema').value.trim();
+    var fecha = el('ca-fecha').value;
+    if(!tema){ el('ca-tema').focus(); return; }
+    if(!fecha){ el('ca-fecha').focus(); return; }
+    alert('Demo: actividad publicada. Familias notificadas y fecha marcada en la agenda del curso.');
+    location.hash = '#/misCursos';
+  };
 };
 
 VISTAS['docente.asistencia'] = function(m){

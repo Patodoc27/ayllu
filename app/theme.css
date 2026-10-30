@@ -226,3 +226,30 @@ svg{display:block}
   .grilla-apps{grid-template-columns:repeat(6,1fr)}
   .vista .cols{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
 }
+
+/* ---- Selector de trimestre (boletín) ---- */
+.selector-tri{display:flex;gap:8px;flex-wrap:wrap}
+.chip{cursor:pointer;border:none;font:inherit;transition:.15s}
+.chip.activo{background:var(--magenta);color:#fff;border-color:var(--magenta)}
+
+/* ---- Carpetas de materias ---- */
+.carpeta{background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(20,20,20,.07);margin:0 0 10px;overflow:hidden;border:1.5px solid transparent}
+.carpeta.abierta{border-color:var(--magenta-suave)}
+.carpeta-cabeza{display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer}
+.carpeta-cabeza svg:last-child{width:16px;height:16px;color:var(--gris-2);transition:transform .2s;flex-shrink:0}
+.carpeta.abierta .carpeta-cabeza svg:last-child{transform:rotate(90deg)}
+.ic-carpeta{width:36px;height:36px;border-radius:10px;background:var(--magenta-suave);color:var(--magenta);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.carpeta-titulo{font-weight:700;font-size:.95rem}
+.carpeta-info{flex:1;font-size:.75rem;color:var(--gris-2)}
+.carpeta-cuerpo{display:none;padding:0 14px 12px}
+.carpeta.abierta .carpeta-cuerpo{display:block}
+.carpeta.vacia .ic-carpeta{background:#EEE;color:var(--gris-2)}
+.nota{font-size:.78rem;color:var(--gris-2);margin:6px 2px}
+.vacio{text-align:center;color:var(--gris-2);padding:28px 16px;font-size:.88rem}
+
+/* ---- Entregas en calendario ---- */
+.dia.entrega{border-color:var(--naranja);background:var(--naranja-suave);font-weight:600;position:relative}
+.punto-ent{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--naranja)}
+.dia-entrega{width:46px;height:46px;border-radius:12px;background:var(--naranja);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;line-height:1}
+.dia-entrega b{font-size:1.05rem}
+.dia-entrega span{font-size:.6rem;text-transform:uppercase}
