@@ -52,17 +52,28 @@ VISTAS['padre.inicio'] = function(m){
 
 VISTAS['padre.boletin'] = function(m){
   var h = V().hijo();
+  var ok=0, mal=0, pd=0;
+  D().notas.forEach(function(n){
+    if(n.pendiente){ pd++; return; }
+    if(n.trimestre!=null && n.trimestre<6) mal++; else ok++;
+  });
   m.innerHTML = V().selectorHijo() +
-    '<div class="titulo-seccion"><h2>Boletín · ' + esc(h.curso) + '</h2></div>' +
+    '<div class="titulo-seccion"><h2>Boletín · ' + esc(h.curso) + '</h2><span style="font-size:.75rem;color:var(--gris-2)">1er trimestre</span></div>' +
+    '<div class="resumen-nota">' +
+      '<span class="pill ok">' + ok + ' aprobadas</span>' +
+      (mal ? '<span class="pill mal">' + mal + ' en riesgo</span>' : '') +
+      (pd  ? '<span class="pill pd">' + pd + ' pendiente' + (pd>1?'s':'') + '</span>' : '') +
+    '</div>' +
     D().notas.map(function(n){
       var items = n.items.map(function(it){
-        var nota = it.nota===0 ? 'pendiente' : it.nota;
-        return '<div class="fila"><div class="texto"><div class="titulo">' + esc(it.act) + '</div></div>' +
-          '<span class="estado ' + (it.nota===0?'A':it.nota<6?'T':'P') + '" style="font-size:.85rem">' + (it.nota===0?'PD':it.nota) + '</span></div>';
+        var mala = it.nota>0 && it.nota<6;
+        return '<div class="fila' + (mala?' nota-baja':'') + '"><div class="texto"><div class="titulo">' + esc(it.act) + '</div>' +
+          (mala ? '<span class="aviso-nota">nota baja — hablar con el docente</span>' : '') + '</div>' +
+          '<span class="estado ' + (it.nota===0?'J':it.nota<6?'M':'P') + '" style="font-size:.85rem">' + (it.nota===0?'PD':it.nota) + '</span></div>';
       }).join('');
       var tri = n.pendiente
         ? '<span class="etiqueta naranja">pendiente</span>'
-        : '<span class="etiqueta ' + (n.trimestre>=6?'magenta':'naranja') + '">Trimestre: ' + (n.trimestre==null?'—':n.trimestre) + '</span>';
+        : '<span class="etiqueta ' + (n.trimestre>=6?'magenta':'negra') + '">Trimestre: ' + (n.trimestre==null?'—':n.trimestre) + '</span>';
       return '<div class="tarjeta"><span class="etiqueta magenta">' + esc(n.materia) + '</span>' + items +
         '<div style="margin-top:10px">' + tri + '</div></div>';
     }).join('');
@@ -277,8 +288,26 @@ VISTAS['admin.usuarios'] = function(m){
     }).join('');
 };
 
+function barraTrimestre(nombre, aprob, desap, pd){
+  var tot = aprob+desap+pd;
+  var pct = function(x){ return Math.round(x*100/tot); };
+  return '<div class="tarjeta"><div style="display:flex;justify-content:space-between;align-items:baseline">' +
+    '<h3>' + nombre + '</h3><span style="font-size:.78rem;color:var(--gris-2)">' + tot + ' alumnos</span></div>' +
+    '<div class="barra-aprob">' +
+      '<div class="ok" style="width:' + pct(aprob) + '%"></div>' +
+      '<div class="mal" style="width:' + pct(desap) + '%"></div>' +
+      '<div class="pd" style="width:' + pct(pd) + '%"></div></div>' +
+    '<div class="barra-ley"><span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--verde);margin-right:4px"></i>aprueban ' + pct(aprob) + '%</span>' +
+    '<span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--rojo);margin-right:4px"></i>desaprueban ' + pct(desap) + '%</span>' +
+    '<span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--naranja);margin-right:4px"></i>pendientes ' + pct(pd) + '%</span></div></div>';
+}
+
 VISTAS['admin.estadisticas'] = function(m){
-  m.innerHTML = '<div class="titulo-seccion"><h2>Engagement de familias</h2></div>' +
+  m.innerHTML = '<div class="titulo-seccion"><h2>Rendimiento por trimestre</h2></div>' +
+    barraTrimestre('1er trimestre', 78, 12, 10) +
+    '<div class="tarjeta" style="display:flex;justify-content:space-between;align-items:center;opacity:.7">' +
+      '<h3>2do trimestre</h3><span class="etiqueta gris">en curso</span></div>' +
+    '<div class="titulo-seccion"><h2>Engagement de familias</h2></div>' +
     '<div class="cols">' +
     kpi('Lectura de comunicados', '87%', 'var(--magenta)') +
     kpi('Respuestas a autorizaciones', '74%', 'var(--naranja)') +

@@ -63,9 +63,7 @@ function mostrarLogin(){
   el('app').innerHTML =
     '<div class="login">' +
       '<div class="marca">' +
-        '<div class="escudo">' +
-          '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a4 4 0 0 1 8 0c0 3-2 5-4 5s-4-2-4-5z"/><path d="M4.5 8.5C6 6 8.8 4.8 12 4.8s6 1.2 7.5 3.7"/><path d="M4.5 15.5C6 18 8.8 19.2 12 19.2s6-1.2 7.5-3.7"/></svg>' +
-        '</div>' +
+        '<img class="logo-login" src="assets/logo-marca.png" alt="AYLLU">' +
         '<h1>' + esc(CONFIG.ESCUELA.nombre) + ' <span>AYLLU</span></h1>' +
         '<p>' + esc(CONFIG.ESCUELA.lema) + '</p>' +
       '</div>' +
@@ -177,9 +175,7 @@ function pintar(){
   el('app').innerHTML =
     '<div class="app">' +
       '<header class="topbar">' +
-        '<div class="escudo" style="width:40px;height:40px;border-radius:12px;background:var(--magenta);display:flex;align-items:center;justify-content:center">' +
-          '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a4 4 0 0 1 8 0c0 3-2 5-4 5s-4-2-4-5z"/><path d="M4.5 8.5C6 6 8.8 4.8 12 4.8s6 1.2 7.5 3.7"/><path d="M4.5 15.5C6 18 8.8 19.2 12 19.2s6-1.2 7.5-3.7"/></svg>' +
-        '</div>' +
+        '<img src="assets/logo-marca.png" alt="" style="width:40px;height:40px;object-fit:contain">' +
         '<div class="escuela"><div class="nombre">' + esc(CONFIG.ESCUELA.nombre) + '</div>' +
         '<div class="usuario">' + esc(SESION.usuario.nombre) + ' · ' + ROLES[rol].nombre + '</div></div>' +
         '<button class="campana" id="btn-campana" aria-label="Notificaciones">' + icono('campana') +

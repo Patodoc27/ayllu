@@ -19,7 +19,7 @@ var DEMO = {
     { materia: 'Matemática', items: [ { act: 'TP 3 · Funciones', nota: 8 }, { act: 'Evaluación 2', nota: 7 } ], trimestre: 7.5 },
     { materia: 'Lengua', items: [ { act: 'Análisis de texto', nota: 9 }, { act: 'Evaluación 2', nota: 8 } ], trimestre: 8.5 },
     { materia: 'Biología', items: [ { act: 'Informe laboratorio', nota: 0 } ], trimestre: null, pendiente: true },
-    { materia: 'Historia', items: [ { act: 'Evaluación 2', nota: 6 } ], trimestre: 6 }
+    { materia: 'Historia', items: [ { act: 'Evaluación 2', nota: 4 } ], trimestre: 4 }
   ],
 
   asistenciaMes: [
