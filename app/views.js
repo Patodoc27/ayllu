@@ -64,7 +64,13 @@ VISTAS['padre.inicio'] = function(m){
   var mios = comunicadosPara(rol==='docente'?'docente':rol==='estudiante'?'estudiante':'padre');
   var pend = mios.filter(function(c){ return c.requiereRespuesta && !c.respondido; });
   var primero = true;
+  var hoy = new Date();
+  var DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var nom = esc((V().SESION.usuario.nombre||'').split(' ')[0] || 'familia');
   m.innerHTML =
+    '<div class="saludo"><div class="saludo-fecha">' + DIAS[hoy.getDay()] + ' ' + hoy.getDate() + ' de ' + MESES[hoy.getMonth()] + '</div>' +
+    '<h1>Hola, ' + nom + '</h1></div>' +
     selHijo() +
     (pend.length ? '<button class="pendientes" style="width:100%;text-align:left" id="btn-pend">' +
       '<span class="num">' + pend.length + '</span><span class="texto">Pendientes por responder</span>' + icono('flecha') + '</button>' : '') +

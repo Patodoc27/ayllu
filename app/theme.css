@@ -408,3 +408,67 @@ a.tarjeta.link:hover{transform:translateY(-2px);box-shadow:var(--sombra-fuerte);
 .switch{box-shadow:inset 0 1px 3px rgba(0,0,0,.2)}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--magenta);box-shadow:0 0 0 3px var(--magenta-suave)}
 .campo input,.campo select,.campo textarea{border-radius:13px;transition:.15s}
+
+/* ================================================================
+   AYLLU v3 — acabado de mercado: saludo, acentos por tipo, avatares
+   con degradado, KPIs con barra de marca, calendario y detalle fino
+   ================================================================ */
+
+/* Saludo personalizado */
+.saludo{padding:14px 2px 4px}
+.saludo-fecha{font-size:.8rem;font-weight:600;color:var(--gris-2);text-transform:capitalize}
+.saludo h1{font-size:1.55rem;font-weight:800;letter-spacing:-.5px;line-height:1.2;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-top:2px}
+
+/* Etiquetas con punto de color */
+.etiqueta{display:inline-flex;align-items:center;gap:6px}
+.etiqueta::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor}
+
+/* Acento lateral por categoría de comunicado */
+.tarjeta{position:relative;overflow:hidden}
+.tarjeta:has(.etiqueta.negra){border-left:5px solid var(--negro)}
+.tarjeta:has(.etiqueta.magenta){border-left:5px solid var(--magenta)}
+.tarjeta:has(.etiqueta.naranja){border-left:5px solid var(--naranja)}
+
+/* Avatares de listas: degradado de marca */
+.fila .avatar{background:var(--grad);color:#fff;box-shadow:0 3px 8px rgba(209,0,111,.25)}
+
+/* KPIs: barra superior de marca */
+.kpi{border-top:3px solid transparent;border-image:linear-gradient(90deg,var(--magenta),var(--naranja)) 1;border-radius:16px 16px 0 0}
+.kpi.warn{border-top-color:var(--naranja);border-image:none}
+
+/* Calendario: días con presencia */
+.cal .dia{transition:.15s;border:1px solid rgba(20,20,20,.04)}
+.cal .dia:hover{transform:translateY(-1px);box-shadow:var(--sombra-fuerte)}
+.dia-entrega{background:linear-gradient(135deg,var(--naranja),var(--naranja-oscuro));box-shadow:0 4px 10px rgba(255,122,26,.35)}
+
+/* Tablas con más aire */
+.tabla td{transition:.12s}
+.tabla tr:hover td{background:#FBF7FA}
+.planilla th:first-child{position:sticky;left:0;background:var(--negro);z-index:2}
+
+/* Filas: micro-presión al tocar */
+.fila{border-radius:10px}
+.fila:active{background:var(--magenta-suave)}
+
+/* Campana con resplandor suave al tener novedades */
+.campana .badge{animation:late .5s ease}
+@keyframes late{from{transform:scale(.4)}to{transform:scale(1)}}
+
+/* Appicons: íconos con brillo */
+.appicon .ic{position:relative;overflow:hidden}
+.appicon .ic::after{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,.28),transparent 55%)}
+
+/* Switch más pulido */
+.switch{box-shadow:inset 0 1px 3px rgba(0,0,0,.25)}
+.switch.on{background:linear-gradient(135deg,var(--magenta),var(--magenta-oscuro))}
+
+/* Estados de asistencia: presencia */
+.estado{box-shadow:0 3px 8px rgba(20,20,20,.2)}
+
+/* Fondo con calidez apenas perceptible */
+.app{background:linear-gradient(180deg,#FDFAFC 0%,var(--fondo) 220px)}
+
+/* Login: patrón de marca detrás del logo */
+.login .logo-login{animation:flota 4s ease-in-out infinite}
+@keyframes flota{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
