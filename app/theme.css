@@ -302,3 +302,109 @@ a.appicon:hover{transform:translateY(-2px)}
 .switch.on{background:var(--magenta)}
 .switch.on::after{left:23px}
 .cal .dia.J{border-bottom:3px solid var(--gris-2);background:#F0F0F0}
+
+/* ================================================================
+   AYLLU v2 — salto de diseño: tipografía propia, degradados de marca,
+   navbar flotante, tarjetas con profundidad, animación de entrada
+   ================================================================ */
+:root{
+  --grad:linear-gradient(135deg,var(--magenta) 0%,var(--naranja) 100%);
+  --grad-suave:linear-gradient(135deg,var(--magenta-suave),var(--naranja-suave));
+  --sombra:0 1px 2px rgba(20,20,20,.05),0 6px 18px rgba(20,20,20,.07);
+  --sombra-fuerte:0 10px 30px rgba(20,20,20,.15);
+}
+body{font-family:'Manrope',"Segoe UI",system-ui,-apple-system,sans-serif}
+h1,h2,h3,.kpi b,.estado,.codigo input,.btn,.pendientes .num,.dia-entrega b{font-family:'Sora','Manrope',system-ui,sans-serif}
+h2{letter-spacing:-.3px}
+.tarjeta h3{letter-spacing:-.2px}
+
+/* Entrada de cada vista */
+.vista>*{animation:entra .32s cubic-bezier(.2,.7,.3,1) both}
+@keyframes entra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ---- Topbar de marca ---- */
+.topbar{background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-bottom:0;box-shadow:0 1px 0 rgba(20,20,20,.06)}
+.topbar::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad)}
+.topbar>img{border-radius:13px;background:var(--magenta-suave);padding:3px}
+.topbar .escuela .nombre{font-family:'Sora','Manrope',sans-serif;font-weight:700}
+.campana{border-radius:13px;background:var(--magenta-suave);color:var(--magenta)}
+.badge{box-shadow:0 0 0 2px var(--blanco)}
+
+/* ---- Botones con presencia ---- */
+.btn{border-radius:14px;letter-spacing:.1px;transition:transform .12s,box-shadow .12s}
+.btn.magenta{background:linear-gradient(135deg,var(--magenta),var(--magenta-oscuro));box-shadow:0 5px 16px rgba(209,0,111,.28)}
+.btn.naranja{background:linear-gradient(135deg,var(--naranja),var(--naranja-oscuro));box-shadow:0 5px 16px rgba(255,122,26,.3)}
+.btn.contorno{background:var(--blanco)}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:scale(.97)}
+.btn:disabled{transform:none;box-shadow:none}
+
+/* ---- Tarjetas ---- */
+.tarjeta{border-radius:18px;box-shadow:var(--sombra);border:1px solid rgba(20,20,20,.04)}
+a.tarjeta.link{transition:.16s}
+a.tarjeta.link:hover{transform:translateY(-2px);box-shadow:var(--sombra-fuerte);border-color:var(--magenta-suave)}
+
+/* Títulos de sección con la marca */
+.titulo-seccion h2{display:flex;align-items:center;gap:9px}
+.titulo-seccion h2::before{content:'';width:4px;height:17px;border-radius:3px;background:var(--grad)}
+
+/* ---- Navbar móvil: píldora flotante ---- */
+@media(max-width:899px){
+  .navbar{left:12px;right:12px;bottom:12px;border:0;border-radius:26px;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);box-shadow:0 10px 34px rgba(20,20,20,.2)}
+  .navbar-inner{max-width:none}
+  .navbar a{border-radius:19px;margin:5px 2px;padding:8px 4px 9px}
+  .navbar a.activo{background:var(--magenta-suave)}
+  .vista{padding-bottom:130px}
+}
+/* ---- Sidebar escritorio ---- */
+@media(min-width:900px){
+  .navbar{width:236px;border-right:0;background:transparent;padding-top:86px}
+  .navbar-inner{gap:2px}
+  .navbar a{border-radius:14px;margin:2px 10px;color:var(--gris-1);transition:.15s}
+  .navbar a:hover{background:#F4EDF1}
+  .navbar a.activo{background:var(--magenta-suave);color:var(--magenta)}
+  .vista{margin-left:236px}
+}
+
+/* ---- Banner de pendientes ---- */
+.pendientes{background:linear-gradient(120deg,var(--naranja),var(--naranja-oscuro));box-shadow:0 8px 20px rgba(255,122,26,.35);border-radius:18px}
+
+/* ---- Chips ---- */
+.chip.activo{background:linear-gradient(135deg,var(--magenta),var(--magenta-oscuro));box-shadow:0 4px 12px rgba(209,0,111,.3)}
+
+/* ---- KPIs ---- */
+.kpi{border-radius:16px;border:1px solid rgba(20,20,20,.05);box-shadow:var(--sombra);padding:16px 10px}
+.kpi b{font-size:1.55rem;letter-spacing:-.6px}
+.kpi.warn{border-left:0;box-shadow:inset 0 0 0 1.5px var(--naranja),var(--sombra)}
+
+/* ---- Accesos ---- */
+.appicon{border:1px solid rgba(20,20,20,.04);border-radius:18px;transition:.18s}
+.appicon:hover{box-shadow:var(--sombra-fuerte)}
+.appicon .ic{box-shadow:0 5px 12px rgba(20,20,20,.2)}
+
+/* ---- Login: momento de marca ---- */
+.login{background:
+  radial-gradient(1100px 600px at 85% -10%,var(--naranja-suave),transparent 60%),
+  radial-gradient(900px 700px at -10% 110%,var(--magenta-suave),transparent 62%),
+  #FBF8FA}
+.login .logo-login{width:124px;height:124px;filter:drop-shadow(0 14px 26px rgba(209,0,111,.3))}
+.login .marca h1{font-weight:800}
+.login .caja{border-radius:24px;border:1px solid rgba(20,20,20,.05)}
+.codigo input{border-radius:16px;box-shadow:var(--sombra)}
+.roles-demo button{border-radius:22px;box-shadow:var(--sombra)}
+
+/* ---- Detalles ---- */
+.vacio{border:1.5px dashed var(--gris-3);border-radius:16px;margin:8px 0;background:rgba(255,255,255,.55)}
+.alertita{border-left:4px solid currentColor;border-radius:14px}
+.alertita.info{color:var(--magenta-oscuro)}
+.alertita.aviso{color:var(--naranja-oscuro)}
+.carpeta{border-radius:16px;transition:.15s}
+.carpeta-cabeza:hover{background:#FDF7FB;border-radius:16px}
+.carpeta.mala{box-shadow:0 0 0 1px var(--rojo),var(--sombra)}
+.estado{border-radius:11px;box-shadow:0 2px 6px rgba(20,20,20,.16)}
+.planilla th{background:linear-gradient(135deg,var(--negro),#3B1030)}
+.selector-contexto .avatar{background:var(--grad)}
+.marca-doc{transition:.15s}
+.switch{box-shadow:inset 0 1px 3px rgba(0,0,0,.2)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--magenta);box-shadow:0 0 0 3px var(--magenta-suave)}
+.campo input,.campo select,.campo textarea{border-radius:13px;transition:.15s}
