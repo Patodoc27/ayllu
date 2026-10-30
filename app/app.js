@@ -69,7 +69,7 @@ function mostrarLogin(){
   el('app').innerHTML =
     '<div class="login">' +
       '<div class="marca">' +
-        '<img class="logo-login" src="assets/logo-marca.png" alt="AYLLU">' +
+        '<img class="hero-img" src="assets/hero-login.png" alt="">' +
         '<h1>' + esc(CONFIG.ESCUELA.nombre) + ' <span>AYLLU</span></h1>' +
         '<p>' + esc(CONFIG.ESCUELA.lema) + '</p>' +
       '</div>' +

@@ -472,3 +472,20 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--magenta)
 /* Login: patrón de marca detrás del logo */
 .login .logo-login{animation:flota 4s ease-in-out infinite}
 @keyframes flota{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* ---- Hero del login (ilustración de marca) ---- */
+.login .hero-img{width:min(420px,78vw);height:auto;display:block;margin:0 auto 2px;
+  mix-blend-mode:multiply;animation:flota 5s ease-in-out infinite}
+@media(min-width:900px){
+  .login{flex-direction:row;justify-content:center;gap:56px;text-align:left}
+  .login .marca{max-width:460px}
+  .login .hero-img{width:min(460px,42vw)}
+  .login .caja{max-width:400px;flex-shrink:0}
+}
+
+/* ---- Estados vacíos con ilustración propia ---- */
+.vacio{display:flex;flex-direction:column;align-items:center;gap:4px;
+  background:#fff;border:1.5px dashed var(--gris-3)}
+.vacio::before{content:'';width:150px;height:120px;margin-bottom:4px;
+  background:url(../assets/empty-state.png) center/contain no-repeat}
+.login .hero-img{mix-blend-mode:normal}
