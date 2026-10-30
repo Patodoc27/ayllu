@@ -253,3 +253,15 @@ svg{display:block}
 .dia-entrega{width:46px;height:46px;border-radius:12px;background:var(--naranja);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;line-height:1}
 .dia-entrega b{font-size:1.05rem}
 .dia-entrega span{font-size:.6rem;text-transform:uppercase}
+
+/* ---- Carpeta con nota baja: el recuadro rojo marca la materia ---- */
+.carpeta.mala{border-color:var(--rojo)}
+.carpeta.mala .ic-carpeta{background:var(--rojo-suave);color:var(--rojo)}
+.carpeta.mala .carpeta-titulo{color:var(--rojo)}
+
+/* ---- KPIs (director/secretaría) ---- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border-radius:14px;padding:14px 10px;text-align:center;box-shadow:0 1px 3px rgba(20,20,20,.07)}
+.kpi b{display:block;font-size:1.35rem;line-height:1.1}
+.kpi span{font-size:.68rem;color:var(--gris-2);text-transform:uppercase;letter-spacing:.4px}
+@media (max-width:520px){.kpis{grid-template-columns:repeat(2,1fr)}}

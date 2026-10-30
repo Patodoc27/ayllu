@@ -98,6 +98,21 @@ var DEMO = {
     { nombre: 'Sosa, Pablo', curso: '1° B', detalle: 'Nota pendiente en Biología', tipo: 'nota' }
   ],
 
+  /* Vista del director: toda la escuela de un vistazo */
+  escuela: {
+    asistenciaHoy: 92, faltasHoy: 8, sinJustificar: 3, enRiesgo: 4, mensajesAbiertos: 2,
+    faltasCurso: [
+      { curso: '3° A', faltas: 4, tarde: 2 }, { curso: '1° B', faltas: 2, tarde: 0 },
+      { curso: '4° A', faltas: 1, tarde: 1 }, { curso: '2° A', faltas: 1, tarde: 0 }
+    ],
+    alumnosRiesgo: [
+      { nombre: 'González, Martina', curso: '3° A', detalle: 'Historia: nota 4' },
+      { nombre: 'Sosa, Pablo', curso: '1° B', detalle: 'Biología: sin entregar' },
+      { nombre: 'Díaz, Emilio', curso: '3° A', detalle: 'Matemática: nota 5' },
+      { nombre: 'Pereyra, Ana', curso: '4° A', detalle: '3 materias debajo de 6' }
+    ]
+  },
+
   usuariosAdmin: [
     { nombre: 'López, Ana', rol: 'docente', detalle: 'Biología · 3°A 3°B 4°A' },
     { nombre: 'Ruiz, Marcos', rol: 'preceptor', detalle: 'Cursos 1°A 1°B 3°A' },

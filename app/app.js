@@ -14,6 +14,7 @@ var ROLES = {
   estudiante: { nombre: 'Estudiante',  nav: ['inicio','boletin','asistencia','materiales','agenda','mas'] },
   docente:    { nombre: 'Docente',     nav: ['misCursos','asistencia','materiales','comunicados','vida','mas'] },
   preceptor:  { nombre: 'Preceptor',   nav: ['asistencia','alertas','llamados','comunicados','mas'] },
+  director:   { nombre: 'Director/a',  nav: ['resumen','faltas','riesgo','comunicados','mas'] },
   admin:      { nombre: 'Secretaría',  nav: ['resumen','comunicados','usuarios','estadisticas','mas'] }
 };
 
@@ -33,7 +34,9 @@ var NAV_LABELS = {
   resumen:     { t: 'Resumen',     ic: 'home' },
   usuarios:    { t: 'Usuarios',    ic: 'usuarios' },
   estadisticas:{ t: 'Estadísticas',ic: 'chart' },
-  materiales:  { t: 'Materiales',  ic: 'archivo' }
+  materiales:  { t: 'Materiales',  ic: 'archivo' },
+  faltas:      { t: 'Faltas',      ic: 'asistencia' },
+  riesgo:      { t: 'En riesgo',   ic: 'alerta' }
 };
 
 /* ---------- Utilidades ---------- */
@@ -97,6 +100,7 @@ function demoBloque(){
       '<button data-rol="estudiante">Estudiante</button>' +
       '<button data-rol="docente">Docente</button>' +
       '<button data-rol="preceptor">Preceptor</button>' +
+      '<button data-rol="director">Director/a</button>' +
       '<button data-rol="admin">Secretaría</button>' +
     '</div>';
 }

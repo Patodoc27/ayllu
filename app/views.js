@@ -58,7 +58,7 @@ function filaNota(it){
   return '<div class="fila' + (mala?' nota-baja':'') + '"><div class="texto">' +
     '<div class="titulo">' + esc(it.act) + '</div>' +
     '<div class="sub">' + esc(it.tipo) + ' · entrega ' + esc(it.entrega) + '</div>' +
-    (mala ? '<span class="aviso-nota">nota baja — hablar con el docente</span>' : '') + '</div>' + chip + '</div>';
+    '</div>' + chip + '</div>';
 }
 
 /* Boletín: se elige trimestre → se abren las carpetas de materias → se toca una → sus notas */
@@ -68,14 +68,16 @@ function boletinCarpetas(t){
   D().notas.forEach(function(n){
     var tri = n.tri[t] || {items:[]};
     var count = tri.items.length;
+    var mala = tri.items.some(function(it){ return it.nota!=null && it.nota>0 && it.nota<6; });
     var triBadge = tri.pendiente ? '<span class="etiqueta naranja">pendiente</span>'
       : tri.trimestre!=null ? '<span class="etiqueta ' + (tri.trimestre>=6?'magenta':'negra') + '">' + tri.trimestre + '</span>'
       : '';
-    out += '<div class="carpeta' + (count?'':' vacia') + '" data-mat="' + esc(n.materia) + '">' +
+    out += '<div class="carpeta' + (mala?' mala':'') + (count?'':' vacia') + '" data-mat="' + esc(n.materia) + '">' +
       '<div class="carpeta-cabeza">' +
         '<span class="ic-carpeta">' + icono('archivo') + '</span>' +
         '<span class="carpeta-titulo">' + esc(n.materia) + '</span>' +
         '<span class="carpeta-info">' + (count ? count + ' actividad' + (count>1?'es':'') : 'sin actividades') + '</span>' +
+        (mala ? '<span class="etiqueta" style="background:var(--rojo);color:#fff">en riesgo</span>' : '') +
         triBadge + icono('flecha') +
       '</div><div class="carpeta-cuerpo">' +
         tri.items.map(filaNota).join('') +
@@ -356,6 +358,63 @@ VISTAS['preceptor.llamados'] = function(m){
 
 VISTAS['preceptor.comunicados'] = VISTAS['docente.comunicados'];
 VISTAS['preceptor.mas'] = VISTAS['padre.mas'];
+
+/* ============================== DIRECTOR ==============================
+   Ve toda la escuela de un vistazo: asistencia del día, alumnos en riesgo,
+   cursos que más faltan. No carga datos: observa y actúa sobre lo urgente. */
+VISTAS['director.resumen'] = function(m){
+  var e = D().escuela;
+  function kpi(v, t, color){
+    return '<div class="kpi"><b style="color:' + color + '">' + v + '</b><span>' + t + '</span></div>';
+  }
+  m.innerHTML =
+    '<div class="titulo-seccion"><h2>Hoy en la escuela</h2></div>' +
+    '<div class="kpis">' +
+      kpi(e.asistenciaHoy + '%', 'asistencia', 'var(--verde)') +
+      kpi(e.faltasHoy, 'faltas hoy', 'var(--naranja)') +
+      kpi(e.enRiesgo, 'en riesgo', 'var(--rojo)') +
+      kpi(e.mensajesAbiertos, 'consultas', 'var(--negro)') +
+    '</div>' +
+    '<div class="titulo-seccion"><h2>Necesita atención</h2></div>' +
+    '<div class="tarjeta">' +
+      '<div class="fila"><div class="avatar" style="background:var(--rojo-suave);color:var(--rojo)">' + icono('alerta') + '</div>' +
+        '<div class="texto"><div class="titulo">' + e.sinJustificar + ' faltas sin justificar</div><div class="sub">los padres no respondieron la justificación</div></div></div>' +
+      '<div class="fila"><div class="avatar" style="background:var(--rojo-suave);color:var(--rojo)">' + icono('boletin') + '</div>' +
+        '<div class="texto"><div class="titulo">' + e.enRiesgo + ' alumnos con notas bajas</div><div class="sub">ver lista en "En riesgo"</div></div></div>' +
+      '<div class="fila"><div class="avatar" style="background:var(--naranja-suave);color:var(--naranja-oscuro)">' + icono('mensaje') + '</div>' +
+        '<div class="texto"><div class="titulo">' + e.mensajesAbiertos + ' consultas de familias abiertas</div><div class="sub">secretaría y pedagógico</div></div></div>' +
+    '</div>' +
+    '<div class="alertita info">El director observa todo pero no carga datos: notas las cargan los docentes, asistencia los preceptores.</div>';
+};
+
+VISTAS['director.faltas'] = function(m){
+  m.innerHTML =
+    '<div class="titulo-seccion"><h2>Faltas por curso · hoy</h2></div>' +
+    D().escuela.faltasCurso.map(function(c){
+      return '<div class="tarjeta" style="display:flex;justify-content:space-between;align-items:center">' +
+        '<b>' + esc(c.curso) + '</b>' +
+        '<div><span class="etiqueta ' + (c.faltas>2?'negra':'naranja') + '">' + c.faltas + ' falta' + (c.faltas>1?'s':'') + '</span> ' +
+        (c.tarde ? '<span class="etiqueta magenta">' + c.tarde + ' tarde</span>' : '') + '</div></div>';
+    }).join('') +
+    '<div class="alertita info">El registro lo cargan los preceptores; las familias ya recibieron la notificación de cada falta.</div>';
+};
+
+VISTAS['director.riesgo'] = function(m){
+  m.innerHTML =
+    '<div class="titulo-seccion"><h2>Alumnos en riesgo</h2></div>' +
+    '<div class="alertita info">Notas debajo de 6 o entregas sin presentar. El seguimiento pedagógico lo hace el equipo con cada familia.</div>' +
+    '<div class="tarjeta">' +
+      D().escuela.alumnosRiesgo.map(function(a){
+        return '<div class="fila"><div class="avatar" style="background:var(--rojo-suave);color:var(--rojo)">' + esc(a.nombre.charAt(0)) + '</div>' +
+          '<div class="texto"><div class="titulo">' + esc(a.nombre) + ' · ' + esc(a.curso) + '</div>' +
+          '<div class="sub">' + esc(a.detalle) + '</div></div></div>';
+      }).join('') +
+    '</div>';
+};
+
+VISTAS['director.comunicados'] = VISTAS['docente.comunicados'] || VISTAS['admin.comunicados'];
+VISTAS['director.mas'] = VISTAS['padre.mas'];
+VISTAS['director.estadisticas'] = VISTAS['admin.estadisticas'];
 
 /* ============================== SECRETARÍA / ADMIN ============================== */
 
