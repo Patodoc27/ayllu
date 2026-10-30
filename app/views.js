@@ -1,9 +1,9 @@
-/* Vínculo — vistas por rol. Cada vista recibe el <main> y dibuja.
+/* AYLLU — vistas por rol. Cada vista recibe el <main> y dibuja.
    Clave: 'rol.seccion'. ES2017-safe. */
 var VISTAS = {};
 (function(){
 'use strict';
-var V = function(){ return window.VINCULO; };
+var V = function(){ return window.AYLLU; };
 var esc = function(s){ return V().esc(s); };
 var icono = function(n){ return V().icono(n); };
 var D = function(){ return V().DEMO; };

@@ -1,4 +1,4 @@
-/* Vínculo — datos de demostración (modo sin backend).
+/* AYLLU — datos de demostración (modo sin backend).
    Las mismas estructuras que tendrán las tablas reales. */
 var DEMO = {
   escuela: { nombre: 'Colegio Modelo', lema: 'La escuela y la familia, conectadas' },

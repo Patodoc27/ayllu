@@ -1,4 +1,4 @@
-# Vínculo — SuperApp escolar
+# AYLLU — SuperApp escolar
 
 La escuela y la familia, conectadas: comunicados, notas, asistencia y llamados de atención, con notificaciones push gratuitas.
 

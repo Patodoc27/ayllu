@@ -1,6 +1,6 @@
 {
-  "name": "Vínculo — App del colegio",
-  "short_name": "Vínculo",
+  "name": "AYLLU — App del colegio",
+  "short_name": "AYLLU",
   "description": "La escuela y la familia, conectadas: comunicados, notas, asistencia y avisos.",
   "start_url": "./",
   "display": "standalone",

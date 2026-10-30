@@ -1,4 +1,4 @@
-/* Vínculo — núcleo: sesión, router, chrome de la app (topbar + navbar).
+/* AYLLU — núcleo: sesión, router, chrome de la app (topbar + navbar).
    ES2017 (nada de ?. ?? .at() Object.fromEntries). */
 (function(){
 'use strict';
@@ -41,17 +41,17 @@ function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,
 function hijo(){ return DEMO.hijos[SESION.hijoActual]; }
 
 function guardarSesion(){
-  try{ localStorage.setItem('vinculo_sesion', JSON.stringify(SESION.usuario)); }catch(e){}
+  try{ localStorage.setItem('ayllu_sesion', JSON.stringify(SESION.usuario)); }catch(e){}
 }
 function restaurarSesion(){
   try{
-    var u = JSON.parse(localStorage.getItem('vinculo_sesion')||'null');
+    var u = JSON.parse(localStorage.getItem('ayllu_sesion')||'null');
     if(u && u.rol){ SESION.usuario = u; return true; }
   }catch(e){}
   return false;
 }
 function cerrarSesion(){
-  try{ localStorage.removeItem('vinculo_sesion'); }catch(e){}
+  try{ localStorage.removeItem('ayllu_sesion'); }catch(e){}
   SESION.usuario = null;
   location.hash = '';
   mostrarLogin();
@@ -66,7 +66,7 @@ function mostrarLogin(){
         '<div class="escudo">' +
           '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a4 4 0 0 1 8 0c0 3-2 5-4 5s-4-2-4-5z"/><path d="M4.5 8.5C6 6 8.8 4.8 12 4.8s6 1.2 7.5 3.7"/><path d="M4.5 15.5C6 18 8.8 19.2 12 19.2s6-1.2 7.5-3.7"/></svg>' +
         '</div>' +
-        '<h1>' + esc(CONFIG.ESCUELA.nombre) + ' <span>Vínculo</span></h1>' +
+        '<h1>' + esc(CONFIG.ESCUELA.nombre) + ' <span>AYLLU</span></h1>' +
         '<p>' + esc(CONFIG.ESCUELA.lema) + '</p>' +
       '</div>' +
       '<div class="caja" id="caja-login"></div>' +
@@ -233,7 +233,7 @@ document.addEventListener('click', function(e){
 });
 window.addEventListener('hashchange', pintar);
 
-window.VINCULO = {
+window.AYLLU = {
   SESION: SESION, DEMO: DEMO, el: el, esc: esc,
   hijo: hijo, selectorHijo: selectorHijo, engancharSelectorHijo: engancharSelectorHijo,
   icono: icono, pintar: pintar, cerrarSesion: cerrarSesion

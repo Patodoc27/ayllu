@@ -1,4 +1,4 @@
-/* Vínculo — configuración de la instancia.
+/* AYLLU — configuración de la instancia.
    Completar SUPABASE_URL y SUPABASE_ANON_KEY cuando exista el proyecto.
    Si quedan vacíos, la app arranca en MODO DEMO (datos de ejemplo, sin backend). */
 var CONFIG = {

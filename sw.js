@@ -1,5 +1,5 @@
-/* Vínculo — service worker: cache del shell + Web Push */
-var VERSION = 'vinculo-v1';
+/* AYLLU — service worker: cache del shell + Web Push */
+var VERSION = 'ayllu-v1';
 var SHELL = [
   './',
   'index.html',
@@ -42,7 +42,7 @@ self.addEventListener('fetch', function(e){
 
 /* Push: "Pepito faltó" — llega aunque la app esté cerrada */
 self.addEventListener('push', function(e){
-  var data = { titulo: 'Vínculo', cuerpo: 'Nueva novedad del colegio', url: './' };
+  var data = { titulo: 'AYLLU', cuerpo: 'Nueva novedad del colegio', url: './' };
   try{ if(e.data) data = e.data.json(); }catch(err){}
   e.waitUntil(
     self.registration.showNotification(data.titulo, {
@@ -60,7 +60,7 @@ self.addEventListener('notificationclick', function(e){
   e.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(list){
       for(var i=0;i<list.length;i++){
-        if(list[i].url.indexOf('vinculo')>-1 || list[i].focus) return list[i].focus();
+        if(list[i].url.indexOf('ayllu')>-1 || list[i].focus) return list[i].focus();
       }
       return clients.openWindow(e.notification.data.url);
     })
