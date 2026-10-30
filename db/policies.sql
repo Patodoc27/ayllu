@@ -104,3 +104,7 @@ create policy p_grades_write on grades for all using (
       and sa.curso = a.curso and sa.materia = a.materia
     where a.id = activity_id)
   or mi_rol() = 'admin');
+
+alter table materials enable row level security;
+create policy p_mat_sel on materials for select using (true);
+create policy p_mat_write on materials for all using (es_staff());

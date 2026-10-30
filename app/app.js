@@ -11,8 +11,8 @@ var SESION = {
 
 var ROLES = {
   padre:      { nombre: 'Padre/Madre', nav: ['inicio','boletin','asistencia','avisos','mensajes','mas'] },
-  estudiante: { nombre: 'Estudiante',  nav: ['inicio','boletin','asistencia','avisos','agenda','mas'] },
-  docente:    { nombre: 'Docente',     nav: ['misCursos','asistencia','comunicados','vida','mas'] },
+  estudiante: { nombre: 'Estudiante',  nav: ['inicio','boletin','asistencia','materiales','agenda','mas'] },
+  docente:    { nombre: 'Docente',     nav: ['misCursos','asistencia','materiales','comunicados','vida','mas'] },
   preceptor:  { nombre: 'Preceptor',   nav: ['asistencia','alertas','llamados','comunicados','mas'] },
   admin:      { nombre: 'Secretaría',  nav: ['resumen','comunicados','usuarios','estadisticas','mas'] }
 };
@@ -32,7 +32,8 @@ var NAV_LABELS = {
   llamados:    { t: 'Llamados',    ic: 'lapiz' },
   resumen:     { t: 'Resumen',     ic: 'home' },
   usuarios:    { t: 'Usuarios',    ic: 'usuarios' },
-  estadisticas:{ t: 'Estadísticas',ic: 'chart' }
+  estadisticas:{ t: 'Estadísticas',ic: 'chart' },
+  materiales:  { t: 'Materiales',  ic: 'archivo' }
 };
 
 /* ---------- Utilidades ---------- */

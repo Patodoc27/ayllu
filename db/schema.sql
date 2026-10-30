@@ -323,3 +323,17 @@ end; $$;
 drop trigger if exists announcement_notify on announcements;
 create trigger announcement_notify after insert on announcements
   for each row execute function trg_announcement_notify();
+
+-- ============ MATERIALES DESCARGABLES ============
+create table if not exists materials (
+  id uuid primary key default gen_random_uuid(),
+  school_id uuid references schools(id) not null,
+  curso text not null,
+  materia text,
+  titulo text not null,
+  tipo text,                                       -- PDF / fotocopia / enlace
+  storage_path text,                               -- archivo en Supabase Storage
+  url_externa text,                                -- o link
+  subida_por uuid references profiles(id),
+  created_at timestamptz default now()
+);

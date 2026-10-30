@@ -193,6 +193,30 @@ VISTAS['docente.comunicados'] = function(m){
     D().comunicados.map(tarjetaComunicado).join('');
 };
 
+function filaMaterial(x, editable){
+  return '<div class="fila"><div class="avatar" style="background:var(--naranja-suave);color:var(--naranja-oscuro)">' + icono('archivo') + '</div>' +
+    '<div class="texto"><div class="titulo">' + esc(x.titulo) + '</div>' +
+    '<div class="sub">' + esc(x.materia) + ' · ' + esc(x.tipo) + ' · ' + esc(x.peso) + ' · ' + esc(x.fecha) + '</div></div>' +
+    (editable
+      ? '<a class="btn gris chico">Quitar</a>'
+      : '<a class="btn magenta chico" onclick="alert(\'Demo: acá descarga el archivo.\')">Descargar</a>') +
+    '</div>';
+}
+
+VISTAS['estudiante.materiales'] = function(m){
+  m.innerHTML = '<div class="titulo-seccion"><h2>Materiales</h2></div>' +
+    '<div class="alertita info">Todo lo que suben tus docentes: guías, consignas y fotocopias. Se descargan desde el celu o la compu.</div>' +
+    '<div class="tarjeta">' + D().materiales.map(function(x){ return filaMaterial(x,false); }).join('') + '</div>';
+};
+
+VISTAS['padre.materiales'] = VISTAS['estudiante.materiales'];
+
+VISTAS['docente.materiales'] = function(m){
+  m.innerHTML = '<div class="titulo-seccion"><h2>Materiales del curso</h2><a class="btn magenta chico">Subir archivo</a></div>' +
+    '<div class="alertita info">Subís una vez y queda disponible para todo el curso: los estudiantes lo descargan desde cualquier dispositivo.</div>' +
+    '<div class="tarjeta">' + D().materiales.map(function(x){ return filaMaterial(x,true); }).join('') + '</div>';
+};
+
 VISTAS['docente.vida'] = VISTAS['estudiante.agenda'];
 VISTAS['docente.mas'] = VISTAS['padre.mas'];
 

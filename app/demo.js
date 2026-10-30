@@ -42,6 +42,13 @@ var DEMO = {
     { id: 'e3', titulo: 'Reunión de familias 3° año', categoria: 'reuniones', fecha: '6 de noviembre', hora: '18:00' }
   ],
 
+  materiales: [
+    { id: 'ma1', materia: 'Biología', titulo: 'Guía de célula eucariota', tipo: 'PDF', peso: '1,4 MB', fecha: '28/10' },
+    { id: 'ma2', materia: 'Biología', titulo: 'Consignas informe de laboratorio', tipo: 'PDF', peso: '0,3 MB', fecha: '24/10' },
+    { id: 'ma3', materia: 'Matemática', titulo: 'Funciones — ejercitación completa', tipo: 'PDF', peso: '2,1 MB', fecha: '20/10' },
+    { id: 'ma4', materia: 'Lengua', titulo: 'Texto para analizar: cap. 4', tipo: 'Fotocopia', peso: '0,8 MB', fecha: '15/10' }
+  ],
+
   conversaciones: [
     { id: 'm1', sector: 'Secretaría', asunto: 'Constancia de alumno regular', ultimo: 'Sí, la retirás por mostrador el jueves.', fecha: 'Ayer', estado: 'en curso' },
     { id: 'm2', sector: 'Pedagógico', asunto: 'Consulta sobre proyecto final', ultimo: 'Te derivo con la docente de Historia.', fecha: 'Hace 5 días', estado: 'resuelto' }
