@@ -8,11 +8,22 @@ var DEMO = {
     { id: 'st2', nombre: 'Joaquín González', curso: '1° B', avatar: 'JG' }
   ],
 
+  /* audiencia: todos / familias / estudiantes / docentes / preceptores */
   comunicados: [
-    { id: 'c1', categoria: 'urgente', titulo: 'Reunión de familias de 3° año', cuerpo: 'El jueves 6 de noviembre a las 18 h se realizará la reunión de familias para informar el viaje de egresados. Es importante la presencia de al menos un responsable.', fecha: 'Hoy', leido: false, requiereRespuesta: true, opciones: ['Confirmo asistencia', 'No puedo asistir'] },
-    { id: 'c2', categoria: 'charla', titulo: 'Charla sobre uso de pantallas', cuerpo: 'El martes se dictará una charla para familias sobre hábitos digitales saludables, a cargo del equipo de orientación escolar.', fecha: 'Ayer', leido: false, requiereRespuesta: false },
-    { id: 'c3', categoria: 'general', titulo: 'Cambio de horario de salida', cuerpo: 'A partir del lunes, la salida de primaria se adelanta 15 minutos por obras en la vereda.', fecha: 'Hace 3 días', leido: true, requiereRespuesta: false },
-    { id: 'c4', categoria: 'autorizacion', titulo: 'Salida didáctica al museo', cuerpo: 'El 12 de noviembre el curso visitará el Museo de Ciencias Naturales. Costo: $3.500. Se requiere autorización firmada.', fecha: 'Hace 4 días', leido: true, requiereRespuesta: true, opciones: ['Autorizo', 'No autorizo'], respondido: false }
+    { id: 'c1', categoria: 'urgente', audiencia: 'familias', titulo: 'Reunión de familias de 3° año', cuerpo: 'El jueves 6 de noviembre a las 18 h se realizará la reunión de familias para informar el viaje de egresados. Es importante la presencia de al menos un responsable.', fecha: 'Hoy', leido: false, requiereRespuesta: true, opciones: ['Confirmo asistencia', 'No puedo asistir'] },
+    { id: 'c2', categoria: 'charla', audiencia: 'familias', titulo: 'Charla sobre uso de pantallas', cuerpo: 'El martes se dictará una charla para familias sobre hábitos digitales saludables, a cargo del equipo de orientación escolar.', fecha: 'Ayer', leido: false, requiereRespuesta: false },
+    { id: 'c5', categoria: 'general', audiencia: 'docentes', titulo: 'Entrega de planillas de notas', cuerpo: 'Recuerden cerrar las actividades del 2° trimestre antes del viernes 7. Cualquier duda, secretaría.', fecha: 'Hoy', leido: false, requiereRespuesta: false },
+    { id: 'c6', categoria: 'general', audiencia: 'estudiantes', titulo: 'Semana de la ciencia', cuerpo: 'La semana próxima habrá feria de proyectos en el SUM. Anotense los grupos que quieran presentar.', fecha: 'Hace 2 días', leido: true, requiereRespuesta: false },
+    { id: 'c7', categoria: 'general', audiencia: 'preceptores', titulo: 'Reunión de preceptores', cuerpo: 'Mañana a las 12 h, reunión de coordinación en sala de profesores.', fecha: 'Hoy', leido: false, requiereRespuesta: true, opciones: ['Confirmo', 'No puedo'], respondido: false },
+    { id: 'c3', categoria: 'general', audiencia: 'todos', titulo: 'Cambio de horario de salida', cuerpo: 'A partir del lunes, la salida de primaria se adelanta 15 minutos por obras en la vereda.', fecha: 'Hace 3 días', leido: true, requiereRespuesta: false },
+    { id: 'c4', categoria: 'autorizacion', audiencia: 'familias', titulo: 'Salida didáctica al museo', cuerpo: 'El 12 de noviembre el curso visitará el Museo de Ciencias Naturales. Costo: $3.500. Se requiere autorización firmada.', fecha: 'Hace 4 días', leido: true, requiereRespuesta: true, opciones: ['Autorizo', 'No autorizo'], respondido: false }
+  ],
+
+  /* Cursos a cargo del preceptor y estado de la asistencia de hoy */
+  cursosPreceptor: [
+    { curso: '1° A', tomada: true, ausentes: 0, tardes: 0 },
+    { curso: '1° B', tomada: true, ausentes: 1, tardes: 0 },
+    { curso: '3° A', tomada: false, ausentes: 0, tardes: 0 }
   ],
 
   /* Por materia → por trimestre → actividades (tipo, nota, fecha de entrega).

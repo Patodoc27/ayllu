@@ -13,7 +13,7 @@ var ROLES = {
   padre:      { nombre: 'Padre/Madre', nav: ['inicio','boletin','asistencia','avisos','mensajes','mas'] },
   estudiante: { nombre: 'Estudiante',  nav: ['inicio','boletin','asistencia','materiales','agenda','mas'] },
   docente:    { nombre: 'Docente',     nav: ['misCursos','asistencia','materiales','comunicados','vida','mas'] },
-  preceptor:  { nombre: 'Preceptor',   nav: ['asistencia','docentes','alertas','llamados','comunicados','mas'] },
+  preceptor:  { nombre: 'Preceptor',   nav: ['resumen','asistencia','docentes','seguimiento','comunicados','mas'] },
   director:   { nombre: 'Director/a',  nav: ['resumen','faltas','docentes','riesgo','comunicados','mas'] },
   admin:      { nombre: 'Secretaría',  nav: ['resumen','comunicados','usuarios','estadisticas','mas'] }
 };
@@ -37,7 +37,8 @@ var NAV_LABELS = {
   materiales:  { t: 'Materiales',  ic: 'archivo' },
   faltas:      { t: 'Faltas',      ic: 'asistencia' },
   riesgo:      { t: 'En riesgo',   ic: 'alerta' },
-  docentes:    { t: 'Docentes',    ic: 'usuarios' }
+  docentes:    { t: 'Docentes',    ic: 'usuarios' },
+  seguimiento: { t: 'Seguimiento', ic: 'alerta' }
 };
 
 /* ---------- Utilidades ---------- */

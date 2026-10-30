@@ -8,10 +8,29 @@ var esc = function(s){ return V().esc(s); };
 var icono = function(n){ return V().icono(n); };
 var D = function(){ return V().DEMO; };
 
+/* Cada rol ve solo los comunicados dirigidos a su grupo (o a todos) */
+var AUDIENCIAS_ROL = {
+  padre:      ['familias','todos'],
+  estudiante: ['estudiantes','todos'],
+  docente:    ['docentes','todos'],
+  preceptor:  ['preceptores','docentes','todos'],
+  director:   null,   /* dirección y secretaría ven todo */
+  admin:      null
+};
+function comunicadosPara(rol){
+  var ok = AUDIENCIAS_ROL[rol];
+  if(!ok) return D().comunicados;
+  return D().comunicados.filter(function(c){ return ok.indexOf(c.audiencia||'todos') > -1; });
+}
+function etiquetaAudiencia(a){
+  return {familias:'para familias', estudiantes:'para estudiantes', docentes:'para docentes', preceptores:'para preceptores', todos:'para todos'}[a||'todos'];
+}
+
 function tarjetaComunicado(c){
   var cat = {urgente:'negra', charla:'magenta', evento:'naranja', autorizacion:'naranja', general:'gris'};
   var html = '<div class="tarjeta">' +
-    '<span class="etiqueta ' + (cat[c.categoria]||'gris') + '">' + esc(c.categoria) + '</span>' +
+    '<span class="etiqueta ' + (cat[c.categoria]||'gris') + '">' + esc(c.categoria) + '</span> ' +
+    '<span class="etiqueta gris" style="font-size:.62rem">' + etiquetaAudiencia(c.audiencia) + '</span>' +
     '<h3>' + esc(c.titulo) + '</h3><p>' + esc(c.cuerpo) + '</p>' +
     '<div class="fecha">' + esc(c.fecha) + '</div>';
   if(c.requiereRespuesta){
@@ -38,7 +57,7 @@ VISTAS['padre.inicio'] = function(m){
     (pend ? '<button class="pendientes" style="width:100%;text-align:left">' +
       '<span class="num">' + pend + '</span><span class="texto">Pendientes por responder</span>' + icono('flecha') + '</button>' : '') +
     '<div class="titulo-seccion"><h2>Comunicados</h2><a href="#/mas">Ver todos</a></div>' +
-    D().comunicados.map(tarjetaComunicado).join('') +
+    comunicadosPara('padre').map(tarjetaComunicado).join('') +
     '<div class="titulo-seccion"><h2>Próximos eventos</h2><a href="#/agenda">Agenda</a></div>' +
     D().eventos.map(function(e){
       return '<div class="tarjeta" style="display:flex;gap:14px;align-items:center">' +
@@ -276,8 +295,8 @@ VISTAS['docente.asistencia'] = function(m){
 };
 
 VISTAS['docente.comunicados'] = function(m){
-  m.innerHTML = '<div class="titulo-seccion"><h2>Comunicados</h2><a class="btn magenta chico">Nuevo a mis cursos</a></div>' +
-    D().comunicados.map(tarjetaComunicado).join('');
+  m.innerHTML = '<div class="titulo-seccion"><h2>Comunicados</h2><a href="#/nuevoComunicado" class="btn magenta chico">Nuevo</a></div>' +
+    comunicadosPara('docente').map(tarjetaComunicado).join('');
 };
 
 function filaMaterial(x, editable){
@@ -348,8 +367,46 @@ VISTAS['preceptor.alertas'] = function(m){
     }).join('');
 };
 
-VISTAS['preceptor.llamados'] = function(m){
-  m.innerHTML = '<div class="titulo-seccion"><h2>Llamados de atención</h2><a class="btn magenta chico">Registrar</a></div>' +
+/* Panel del preceptor: su jornada de un vistazo — qué ya hizo y qué le falta */
+VISTAS['preceptor.resumen'] = function(m){
+  var pendientes = D().cursosPreceptor.filter(function(c){ return !c.tomada; });
+  var docPend = D().docentesHoy.filter(function(d){ return !d.marcado && false; }); // demo: ya marcados
+  m.innerHTML =
+    '<div class="titulo-seccion"><h2>Mi jornada</h2></div>' +
+    (pendientes.length
+      ? '<button class="pendientes" style="width:100%;text-align:left" onclick="location.hash=\'#/asistencia\'">' +
+        '<span class="num">' + pendientes.length + '</span><span class="texto">Asistencia pendiente: ' + pendientes.map(function(c){return esc(c.curso);}).join(', ') + '</span>' + icono('flecha') + '</button>'
+      : '<div class="alertita" style="background:var(--verde-suave);color:var(--verde)">' + icono('asistencia') + '<div>Asistencia del día completa en tus cursos.</div></div>') +
+    '<div class="titulo-seccion"><h2>Mis cursos</h2></div>' +
+    '<div class="tarjeta">' +
+      D().cursosPreceptor.map(function(c){
+        return '<div class="fila"><div class="avatar" style="background:' + (c.tomada?'var(--verde-suave);color:var(--verde)':'var(--naranja-suave);color:var(--naranja-oscuro)') + '">' + icono('asistencia') + '</div>' +
+          '<div class="texto"><div class="titulo">' + esc(c.curso) + '</div>' +
+          '<div class="sub">' + (c.tomada ? 'asistencia tomada' + (c.ausentes?' · '+c.ausentes+' ausente'+(c.ausentes>1?'s':'')+(c.tardes?' · '+c.tardes+' tarde':'') : '') : 'todavía sin tomar') + '</div></div>' +
+          (c.tomada ? '<span class="estado P">ok</span>' : '<a href="#/asistencia" class="btn naranja chico">Tomar</a>') + '</div>';
+      }).join('') +
+    '</div>' +
+    '<div class="titulo-seccion"><h2>Acciones rápidas</h2></div>' +
+    '<div class="grilla-apps">' +
+      '<a class="appicon" href="#/docentes"><span class="ic" style="background:var(--magenta)">' + icono('usuarios') + '</span>Asistencia docente</a>' +
+      '<a class="appicon" href="#/seguimiento"><span class="ic" style="background:var(--naranja)">' + icono('lapiz') + '</span>Registrar llamado</a>' +
+      '<a class="appicon" href="#/asistencia"><span class="ic" style="background:var(--negro)">' + icono('reloj') + '</span>Llegada tarde</a>' +
+    '</div>';
+};
+
+/* Seguimiento: alertas de alumnos + registro de llamados, en una sola vista */
+VISTAS['preceptor.seguimiento'] = function(m){
+  m.innerHTML = '<div class="titulo-seccion"><h2>Seguimiento</h2><a class="btn magenta chico" onclick="alert(\'Demo: formulario de llamado de atención — tipo, gravedad, texto, aviso a la familia.\')">Registrar llamado</a></div>' +
+    '<div class="alertita info">Señales que piden acción: faltas repetidas, tardes, pendientes. Registrás el llamado y la familia recibe notificación.</div>' +
+    D().alertasPreceptor.map(function(a){
+      var ic = a.tipo==='faltas'?'asistencia':a.tipo==='tarde'?'reloj':'boletin';
+      var col = a.tipo==='faltas'?'var(--naranja)':a.tipo==='tarde'?'var(--magenta)':'var(--negro)';
+      return '<div class="tarjeta" style="display:flex;gap:14px;align-items:center">' +
+        '<div style="width:42px;height:42px;border-radius:12px;background:' + col + ';color:#fff;display:flex;align-items:center;justify-content:center">' + icono(ic) + '</div>' +
+        '<div style="flex:1"><div style="font-weight:600">' + esc(a.nombre) + '</div>' +
+        '<div class="fecha">' + esc(a.curso) + ' · ' + esc(a.detalle) + '</div></div>' + icono('flecha') + '</div>';
+    }).join('') +
+    '<div class="titulo-seccion"><h2>Llamados registrados</h2></div>' +
     D().incidentes.map(function(i){
       return '<div class="tarjeta"><span class="etiqueta ' + (i.gravedad==='leve'?'naranja':'negra') + '">' + esc(i.tipo) + ' · ' + esc(i.gravedad) + '</span>' +
         '<p>' + esc(i.texto) + '</p><div class="fecha">' + esc(i.fecha) + ' · ' + (i.firmado?'firmado por la familia':'sin firma') + '</div></div>';
@@ -386,6 +443,37 @@ VISTAS['preceptor.docentes'] = function(m){
       D().docentesHoy.map(function(dt,i){ return filaDocente(dt,i,true); }).join('') +
     '</div>';
 };
+
+/* Formulario de comunicado compartido: el staff elige a quién va dirigido */
+function formComunicado(m, rol){
+  var AUD = ['todos','familias','estudiantes','docentes','preceptores'];
+  var volver = {docente:'#/comunicados',preceptor:'#/comunicados',director:'#/comunicados',admin:'#/comunicados'}[rol];
+  m.innerHTML =
+    '<div class="titulo-seccion"><h2>Nuevo comunicado</h2><a href="' + volver + '" style="font-size:.8rem">Volver</a></div>' +
+    '<div class="tarjeta">' +
+      '<div class="campo"><label>¿A quién va dirigido?</label>' +
+        '<div id="nc-aud">' + AUD.map(function(a,i){ return '<span class="chip chip-aud' + (i===0?' activo':'') + '" data-a="' + a + '">' + (a==='todos'?'Todos':'Solo ' + a) + '</span>'; }).join('') + '</div></div>' +
+      '<div class="campo"><label>Categoría</label>' +
+        '<select id="nc-cat"><option value="general">General</option><option value="urgente">Urgente</option><option value="evento">Evento</option><option value="charla">Charla</option><option value="autorizacion">Autorización</option></select></div>' +
+      '<div class="campo"><label>Título</label><input id="nc-tit" placeholder="Ej. Reunión de familias de 3° año"></div>' +
+      '<div class="campo"><label>Mensaje</label><textarea id="nc-cuerpo" rows="4" placeholder="Escribí el comunicado..."></textarea></div>' +
+      '<label style="display:flex;gap:10px;align-items:center;margin:6px 0 14px;cursor:pointer">' +
+        '<input type="checkbox" id="nc-resp"> Requiere respuesta de la familia (confirmar, autorizar, firmar)</label>' +
+      '<button class="btn naranja ancho" id="nc-publicar">Publicar comunicado</button>' +
+      '<p class="nota">Al publicar, el grupo elegido recibe notificación push + e-mail al instante.</p>' +
+    '</div>';
+  m.querySelectorAll('.chip-aud').forEach(function(c){
+    c.onclick = function(){ m.querySelectorAll('.chip-aud').forEach(function(x){ x.classList.remove('activo'); }); c.classList.add('activo'); };
+  });
+  el('nc-publicar').onclick = function(){
+    if(!el('nc-tit').value.trim()){ el('nc-tit').focus(); return; }
+    alert('Demo: comunicado publicado al grupo elegido.');
+    location.hash = volver;
+  };
+}
+['docente','preceptor','director','admin'].forEach(function(r){
+  VISTAS[r + '.nuevoComunicado'] = function(m){ formComunicado(m, r); };
+});
 
 VISTAS['preceptor.comunicados'] = VISTAS['docente.comunicados'];
 VISTAS['preceptor.mas'] = VISTAS['padre.mas'];
@@ -494,8 +582,8 @@ function kpi(t, v, color){
 }
 
 VISTAS['admin.comunicados'] = function(m){
-  m.innerHTML = '<div class="titulo-seccion"><h2>Comunicados</h2><a class="btn magenta chico">Nuevo comunicado</a></div>' +
-    '<div class="alertita info">Al publicar, cada familia recibe push + e-mail. Podés ver quién leyó y quién respondió.</div>' +
+  m.innerHTML = '<div class="titulo-seccion"><h2>Comunicados</h2><a href="#/nuevoComunicado" class="btn magenta chico">Nuevo</a></div>' +
+    '<div class="alertita info">Elegís a quién llega: familias, estudiantes, docentes, preceptores o todos. Al publicar reciben push + e-mail.</div>' +
     D().comunicados.map(function(c){
       return tarjetaComunicado(c).replace('</div>$','');
     }).join('');

@@ -99,6 +99,7 @@ create table if not exists announcements (
   cuerpo text not null,
   categoria text not null default 'general' check (categoria in ('general','urgente','charla','evento','autorizacion','tarea')),
   audiencia jsonb not null default '{"todos":true}', -- {todos} | {cursos:[..]} | {roles:[..]} | {alumnos:[..]}
+                                                     -- "familias" en la app = roles ['padre']
   adjuntos jsonb default '[]',
   requiere_respuesta boolean default false,
   opciones jsonb,                                    -- ["Autorizo","No autorizo"]
