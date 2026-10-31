@@ -111,8 +111,10 @@ function filaNota(it){
 function boletinCarpetas(t){
   var out = '';
   var hay = false;
+  var ok = 0, mal = 0, pd = 0;
   D().notas.forEach(function(n){
     var tri = n.tri[t] || {items:[]};
+    if(tri.trimestre!=null){ if(tri.trimestre>=6) ok++; else mal++; } else if(tri.pendiente) pd++;
     var count = tri.items.length;
     var mala = tri.items.some(function(it){ return it.nota!=null && it.nota>0 && it.nota<6; });
     var triBadge = tri.pendiente ? '<span class="etiqueta naranja">pendiente</span>'
@@ -132,6 +134,10 @@ function boletinCarpetas(t){
     if(count) hay = true;
   });
   if(!hay) out += '<div class="vacio">Todavía no hay actividades cargadas en este trimestre.</div>';
+  else out = '<div class="resumen-nota">' +
+    '<span class="pill ok">' + ok + ' aprobada' + (ok===1?'':'s') + '</span>' +
+    '<span class="pill mal">' + mal + ' en riesgo</span>' +
+    '<span class="pill pd">' + pd + ' pendiente' + (pd===1?'':'s') + '</span></div>' + out;
   return out;
 }
 
@@ -150,7 +156,7 @@ window.boletinSel = function(t){
 VISTAS['padre.boletin'] = function(m){
   var h = V().hijo();
   m.innerHTML = selHijo() +
-    '<div class="titulo-seccion"><h2>Boletín · ' + esc(h.curso) + '</h2></div>' +
+    '<div class="titulo-seccion"><h2>Boletín · ' + esc(h.curso) + '</h2><a href="#" onclick="window.print();return false">Imprimir</a></div>' +
     '<div class="selector-tri">' +
       [1,2,3].map(function(t){ return '<button class="chip chip-tri" data-t="' + t + '" onclick="boletinSel(' + t + ')">' + t + '° trimestre</button>'; }).join('') +
     '</div>' +
@@ -171,7 +177,7 @@ VISTAS['padre.asistencia'] = function(m){
   m.innerHTML = selHijo() +
     (faltas ? '<div class="alertita aviso">' + icono('alerta') + '<div><b>' + faltas + ' falta' + (faltas>1?'s':'') + '</b> este mes y ' + tardes + ' llegada' + (tardes>1?'s':'') + ' tarde. La escuela ya fue notificada a tu celular.</div></div>' : '') +
     '<div class="tarjeta"><div class="titulo-seccion" style="margin-top:0"><h2>Octubre · ' + esc(h.nombre.split(' ')[0]) + '</h2></div>' +
-    '<div class="cal">' + celdas +
+    '<div class="cal">' + ['D','L','M','M','J','V','S'].map(function(l){ return '<div class="dia encab">' + l + '</div>'; }).join('') + celdas +
       '<div class="leyenda"><span><i style="background:#1E9E5A"></i>presente</span><span><i style="background:var(--naranja)"></i>ausente</span><span><i style="background:var(--magenta)"></i>tarde</span><span><i style="background:var(--gris-2)"></i>justificada</span></div>' +
     '</div></div>' +
     (esPadre() ? '<a class="btn contorno ancho" href="#/justificar" style="display:block;text-align:center">Justificar una falta</a>' : '');
@@ -312,7 +318,7 @@ VISTAS['estudiante.agenda'] = function(m){
   }
   m.innerHTML = '<div class="titulo-seccion"><h2>Agenda</h2></div>' +
     '<div class="tarjeta"><div class="titulo-seccion" style="margin-top:0"><h2>Noviembre</h2></div>' +
-    '<div class="cal">' + celdas +
+    '<div class="cal">' + ['D','L','M','M','J','V','S'].map(function(l){ return '<div class="dia encab">' + l + '</div>'; }).join('') + celdas +
       '<div class="leyenda"><span><i style="background:var(--naranja)"></i>entrega o evaluación</span></div></div></div>' +
     '<div class="titulo-seccion"><h2>Próximas entregas</h2></div>' +
     D().entregas.map(function(e){

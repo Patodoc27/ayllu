@@ -545,3 +545,7 @@ button:focus-visible,a:focus-visible{ outline:2px solid var(--magenta); outline-
   .vista{ margin-left:0; padding:0 }
   .tarjeta,.carpeta{ box-shadow:none; border:1px solid #DDD }
 }
+
+/* Encabezado de días en calendarios */
+.cal .dia.encab{background:none;box-shadow:none;border:0;aspect-ratio:auto;height:20px;font-size:.62rem;font-weight:800;color:var(--gris-2);letter-spacing:.5px}
+.cal .dia.encab:hover{transform:none;box-shadow:none}
