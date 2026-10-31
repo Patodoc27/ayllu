@@ -489,3 +489,59 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--magenta)
 .vacio::before{content:'';width:150px;height:120px;margin-bottom:4px;
   background:url(../assets/empty-state.png) center/contain no-repeat}
 .login .hero-img{mix-blend-mode:normal}
+
+/* ================================================================
+   AYLLU v4 — micro-ajustes de pulido
+   ================================================================ */
+*{ -webkit-tap-highlight-color:transparent }
+html{ scroll-behavior:smooth }
+body{ overscroll-behavior-y:none }
+::selection{ background:var(--magenta-suave); color:var(--magenta-oscuro) }
+
+/* Safe-area iPhone: la píldora no pisa el gesto de inicio */
+@media(max-width:899px){
+  .navbar{ bottom:calc(12px + env(safe-area-inset-bottom,0px)) }
+  .vista{ padding-bottom:calc(130px + env(safe-area-inset-bottom,0px)) }
+}
+
+/* Focus accesible */
+button:focus-visible,a:focus-visible{ outline:2px solid var(--magenta); outline-offset:2px; border-radius:8px }
+
+/* Entradas de vista más suaves (solo la primera pantalla de contenido) */
+.vista>*:nth-child(1){ animation-duration:.22s }
+
+/* Pendientes: texto más legible y chevron marcado */
+.pendientes svg{ opacity:.9 }
+
+/* Chips con borde sutil para que se lean como botones */
+.chip{ border:1px solid rgba(20,20,20,.06); box-shadow:0 1px 4px rgba(20,20,20,.06) }
+
+/* Botones demo y filtros: feedback hover */
+.roles-demo button{ transition:.15s }
+.roles-demo button:hover{ background:var(--magenta); color:#fff; transform:translateY(-1px) }
+
+/* Tarjetas de eventos: fila más aireada */
+.tarjeta .fecha{ margin-top:10px }
+
+/* Navbar: ítems un poco más grandes y legibles */
+.navbar a{ font-size:.68rem; font-weight:700 }
+@media(min-width:900px){
+  .navbar a{ font-weight:600 }
+}
+
+/* Celdas de asistencia: más grandes para el pulgar */
+.estado{ width:36px;height:36px }
+.marca-doc{ width:36px;height:36px }
+
+/* Evitar animaciones si el usuario pidió menos movimiento */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{ animation-duration:.01s!important; transition-duration:.01s!important }
+}
+
+/* Impresión limpia (boletín) */
+@media print{
+  .navbar,.topbar .campana,.btn,.acciones{ display:none!important }
+  .app{ max-width:100% }
+  .vista{ margin-left:0; padding:0 }
+  .tarjeta,.carpeta{ box-shadow:none; border:1px solid #DDD }
+}
